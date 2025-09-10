@@ -1,62 +1,64 @@
 'use client'
 
-import { AdminSidebar } from '@/features/admin/components/AdminSidebar'
-import AdminHeader from '@/features/admin/components/AdminHeader'
-import { AdminErrorBoundary } from '@/features/admin/components/AdminErrorBoundary'
-import { AdminToastProvider } from '@/features/admin/components/AdminToast'
-import { AdminPageLoading } from '@/features/admin/components/AdminLoadingStates'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { Background } from "@/features/shared/components"
+import { AdminErrorBoundary, AdminPageLoading, AdminSidebar } from '@/features/admin/components'
+import AdminHeader from "@/features/admin/components/AdminHeader"
 
-export default function AdminLayout({
-    children,
-}: {
+interface AdminLayoutProps {
     children: React.ReactNode
-}) {
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
     const { data: session, status } = useSession()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const [hasRedirected, setHasRedirected] = useState(false)
 
     useEffect(() => {
         if (status === 'loading') return // Still loading
-        
-        if (!session || !session.user.isAdmin) {
-            redirect('/login')
+
+        if (!session?.user?.isAdmin && !hasRedirected) {
+            setHasRedirected(true)
+            redirect('/')
         }
-    }, [session, status])
+    }, [session, status, hasRedirected])
 
     const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen)
+        setIsMobileMenuOpen(prev => !prev)
     }
 
     const closeMobileMenu = () => {
         setIsMobileMenuOpen(false)
     }
 
+    // Show loading while session is being fetched
     if (status === 'loading') {
         return <AdminPageLoading message="Loading admin panel..." />
     }
 
-    if (!session || !session.user.isAdmin) {
-        return null
+    // Don't render anything if user is not admin (will redirect)
+    if (!session?.user?.isAdmin) {
+        return <AdminPageLoading message="Redirecting..." />
     }
 
     return (
         <AdminErrorBoundary>
-            <AdminToastProvider>
-                <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex">
-                    <AdminSidebar 
+            <Background>
+                <div className="min-h-screen flex" data-admin-section>
+                    <AdminSidebar
                         isMobileMenuOpen={isMobileMenuOpen}
                         onCloseMobileMenu={closeMobileMenu}
                     />
-                    <div className="flex-1 lg:ml-64 flex flex-col">
+                    <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
                         <AdminHeader onMenuToggle={toggleMobileMenu} />
                         <main className="flex-1 p-4 lg:p-6">
                             {children}
                         </main>
                     </div>
                 </div>
-            </AdminToastProvider>
+            </Background>
         </AdminErrorBoundary>
     )
 }

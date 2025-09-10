@@ -13,7 +13,21 @@ export const getAppWindowInfo = (
     windows: WindowState[],
     focusedWindowId: string | null
 ): AppWindowInfo => {
-    const appWindow = windows.find(w => w.title.toLowerCase().includes(appType));
+    const appTitleMap: Record<AppType["type"], string> = {
+        'documents': 'Documents',
+        'terminal': 'Terminal',
+        'settings': 'System Preferences',
+        'calculator': 'Calculator',
+        'mail': 'Mail',
+        'camera': 'Camera',
+        'music': 'Music',
+        'notes': 'Notes',
+        'browser': 'Safari',
+        'photos': 'Photos'
+    };
+
+    const expectedTitle = appTitleMap[appType];
+    const appWindow = windows.find(w => w.title === expectedTitle);
 
     return {
         isRunning: !!appWindow,

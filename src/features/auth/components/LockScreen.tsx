@@ -62,7 +62,7 @@ export function LockScreen({
                             ]
                         }}
                         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-thin tracking-wider mb-3"
+                        className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-thin tracking-wider mb-3"
                     >
                         {formattedTime}
                     </motion.div>
@@ -70,7 +70,7 @@ export function LockScreen({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.5, duration: 0.6 }}
-                        className="text-lg sm:text-xl md:text-2xl font-light text-white/70 tracking-wide"
+                        className="text-2xl sm:text-3xl md:text-4xl font-light text-white/70 tracking-wide"
                     >
                         {formattedDate}
                     </motion.div>
@@ -81,10 +81,10 @@ export function LockScreen({
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
                     whileHover={{ scale: 1.05 }}
-                    className="w-16 h-16 rounded-full bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center shadow-2xl backdrop-blur-xl border border-white/30 relative overflow-hidden"
+                    className="w-20 h-20 rounded-full bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center shadow-2xl backdrop-blur-xl border border-white/30 relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-full" />
-                    <User className="w-8 h-8 text-white/90 relative z-10" />
+                    <User className="w-10 h-10 text-white/90 relative z-10" />
                 </motion.div>
 
                 <motion.button

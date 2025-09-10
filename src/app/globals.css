@@ -1,26 +1,64 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Scrollbar styles for admin section only */
+body:has([data-admin-section]) {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgb(71 85 105 / 0.5) rgb(30 41 59 / 0.5) !important;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+body:has([data-admin-section])::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body:has([data-admin-section])::-webkit-scrollbar-track {
+  background: rgb(30 41 59 / 0.5) !important;
+  border-radius: 9999px !important;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+body:has([data-admin-section])::-webkit-scrollbar-thumb {
+  background: rgb(71 85 105 / 0.5) !important;
+  border-radius: 9999px !important;
+}
+
+body:has([data-admin-section])::-webkit-scrollbar-thumb:hover {
+  background: rgb(71 85 105 / 0.7) !important;
+}
+
+body:has([data-admin-section])::-webkit-scrollbar-corner {
+  background: rgb(30 41 59 / 0.5) !important;
+}
+
+[data-admin-section],
+[data-admin-section] * {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgb(71 85 105 / 0.5) rgb(30 41 59 / 0.5) !important;
+}
+
+[data-admin-section]::-webkit-scrollbar,
+[data-admin-section] *::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+[data-admin-section]::-webkit-scrollbar-track,
+[data-admin-section] *::-webkit-scrollbar-track {
+  background: rgb(30 41 59 / 0.5) !important;
+  border-radius: 9999px !important;
+}
+
+[data-admin-section]::-webkit-scrollbar-thumb,
+[data-admin-section] *::-webkit-scrollbar-thumb {
+  background: rgb(71 85 105 / 0.5) !important;
+  border-radius: 9999px !important;
+}
+
+[data-admin-section]::-webkit-scrollbar-thumb:hover,
+[data-admin-section] *::-webkit-scrollbar-thumb:hover {
+  background: rgb(71 85 105 / 0.7) !important;
+}
+
+[data-admin-section]::-webkit-scrollbar-corner,
+[data-admin-section] *::-webkit-scrollbar-corner {
+  background: rgb(30 41 59 / 0.5) !important;
 }

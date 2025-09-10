@@ -5,20 +5,22 @@ export interface Credentials {
     password: string;
 }
 
-export const useCredentials = (initialCredentials: Credentials = { accessCode: '', password: '' }) => {
+export function useCredentials(initialCredentials: Credentials = { accessCode: '', password: '' }) {
     const [credentials, setCredentials] = useState<Credentials>(initialCredentials);
 
-    const updateCredential = useCallback((field: keyof Credentials) =>
-            (e: React.ChangeEvent<HTMLInputElement>) => {
-                setCredentials(prev => ({ ...prev, [field]: e.target.value }));
-            },
-        []);
+    const updateCredential = useCallback(function updateCredentialFn(field: keyof Credentials) {
+        return function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+            setCredentials(function(prev) {
+                return { ...prev, [field]: e.target.value };
+            });
+        }
+    }, []);
 
-    const resetCredentials = useCallback(() => {
+    const resetCredentials = useCallback(function resetCredentialsFn() {
         setCredentials({ accessCode: '', password: '' });
     }, []);
 
-    const isValid = credentials.accessCode.trim() && credentials.password.trim();
+    const isValid = !!(credentials.accessCode.trim() && credentials.password.trim());
 
     return {
         credentials,
@@ -26,4 +28,4 @@ export const useCredentials = (initialCredentials: Credentials = { accessCode: '
         resetCredentials,
         isValid
     };
-};
+}
