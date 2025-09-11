@@ -1,20 +1,9 @@
 "use client"
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { MapContainer, TileLayer, useMap, CircleMarker } from 'react-leaflet'
+import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, Loader2, AlertCircle, User } from 'lucide-react'
-import L from 'leaflet'
-import type { LeafletMouseEvent } from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-
-// Fix for default markers in Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-})
 
 interface UserLocation {
     id: string
@@ -33,47 +22,21 @@ interface UserLocationMapProps {
     height?: string
 }
 
-// Component to fit map bounds to all markers
-function FitBounds({ locations }: { locations: UserLocation[] }) {
-    const map = useMap()
-
-    useEffect(() => {
-        if (locations.length > 0) {
-            const bounds = L.latLngBounds(
-                locations.map(loc => [loc.latitude, loc.longitude])
-            )
-            
-            map.fitBounds(bounds, {
-                padding: [20, 20],
-                maxZoom: 15,
-                animate: true,
-                duration: 0.5
-            })
-        }
-    }, [locations, map])
-
-    return null
-}
-
-function MapClickHandler({ setSelectedUser }: { setSelectedUser: (user: UserLocation | null) => void }) {
-    const map = useMap()
-    
-    useEffect(() => {
-        const handleMapClick = (e: any) => {
-            // Only clear selection if clicking on the map itself, not on markers
-            if (e.originalEvent && e.originalEvent.target === map.getContainer()) {
-                setSelectedUser(null)
-            }
-        }
-        
-        map.on('click', handleMapClick)
-        return () => {
-            map.off('click', handleMapClick)
-        }
-    }, [map, setSelectedUser])
-    
-    return null
-}
+// Dynamic import for the actual map component
+const DynamicMapComponent = dynamic(
+    () => import('./UserLocationMapClient').then(mod => ({ default: mod.UserLocationMapClient })),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="flex items-center justify-center h-full">
+                <div className="text-center space-y-3">
+                    <Loader2 className="h-6 w-6 text-blue-500 animate-spin mx-auto" />
+                    <p className="text-slate-600 text-sm">Loading map...</p>
+                </div>
+            </div>
+        )
+    }
+)
 
 export function UserLocationMap({ className = "", height = "500px" }: UserLocationMapProps) {
     const [locations, setLocations] = useState<UserLocation[]>([])
@@ -207,54 +170,16 @@ export function UserLocationMap({ className = "", height = "500px" }: UserLocati
 
             {/* Map Container */}
             <div className="relative flex-1 overflow-hidden rounded-b-xl">
-                <MapContainer
-                    center={[39.8283, -98.5795]}
-                    zoom={4}
-                    minZoom={2}
-                    maxZoom={18}
-                    style={{ height: '100%', width: '100%' }}
-                >
-                    <TileLayer
-                        attribution='&copy; OpenStreetMap contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    
-                    <FitBounds locations={locations} />
-                    <MapClickHandler setSelectedUser={setSelectedUser} />
-                    
-                    {/* Simple, stable circle markers */}
-                    {locations.map((location) => (
-                        <CircleMarker
-                            key={location.id}
-                            center={[location.latitude, location.longitude]}
-                            radius={hoveredUser === location.id ? 10 : 8}
-                            pathOptions={{
-                                fillColor: location.isActive ? '#10b981' : '#64748b',
-                                color: 'white',
-                                weight: 2,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            }}
-                            eventHandlers={{
-                                click: (e: LeafletMouseEvent) => {
-                                    e.originalEvent?.stopPropagation()
-                                    e.originalEvent?.preventDefault()
-                                    setSelectedUser(location)
-                                },
-                                mouseover: () => {
-                                    setHoveredUser(location.id)
-                                },
-                                mouseout: () => {
-                                    setHoveredUser(null)
-                                }
-                            }}
-                        />
-                    ))}
-                </MapContainer>
+                <DynamicMapComponent
+                    locations={locations}
+                    setSelectedUser={setSelectedUser}
+                    hoveredUser={hoveredUser}
+                    setHoveredUser={setHoveredUser}
+                />
 
                 {/* Stable tooltip on hover */}
                 {hoveredUser && (
-                    <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-slate-200 p-3 pointer-events-none z-[1000] max-w-xs">
+                    <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-slate-200 p-3 pointer-events-none z-[9998] max-w-xs">
                         {(() => {
                             const user = locations.find(l => l.id === hoveredUser)
                             if (!user) return null
@@ -282,7 +207,7 @@ export function UserLocationMap({ className = "", height = "500px" }: UserLocati
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute bottom-4 left-4 right-4 bg-white rounded-lg shadow-lg border border-slate-200 z-[1001]"
+                        className="absolute bottom-4 left-4 right-4 bg-white rounded-lg shadow-lg border border-slate-200 z-[9999]"
                     >
                         <div className="p-4">
                             <div className="flex items-center justify-between">

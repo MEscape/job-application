@@ -10,7 +10,6 @@ interface BaseCardProps {
     icon: LucideIcon
     href?: string
     color: string
-    bgColor?: string
     variant?: 'navigation' | 'stats'
     onClick?: () => void
     className?: string
@@ -55,7 +54,6 @@ export function BaseCard({
     icon: Icon, 
     href, 
     color, 
-    bgColor,
     variant = 'navigation',
     onClick,
     className = ''

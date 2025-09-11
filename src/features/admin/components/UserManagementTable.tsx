@@ -23,7 +23,7 @@ export function UserManagementTable() {
 
     useEffect(() => {
         fetchUsers()
-    }, [])
+    }, [fetchUsers])
 
     const formatLastLogin = (lastLogin: Date | null | undefined) => {
         if (!lastLogin) return 'Never'

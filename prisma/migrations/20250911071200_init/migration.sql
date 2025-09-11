@@ -1,33 +1,25 @@
-/*
-  Warnings:
-
-  - You are about to drop the `File` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Folder` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "public"."FileType" AS ENUM ('FOLDER', 'IMAGE', 'VIDEO', 'AUDIO', 'DOCUMENT', 'ARCHIVE', 'CODE', 'TEXT', 'OTHER');
 
--- DropForeignKey
-ALTER TABLE "public"."File" DROP CONSTRAINT "File_folderId_fkey";
+-- CreateTable
+CREATE TABLE "public"."User" (
+    "id" TEXT NOT NULL,
+    "accessCode" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "company" TEXT NOT NULL,
+    "name" TEXT,
+    "location" TEXT NOT NULL,
+    "latitude" DOUBLE PRECISION NOT NULL,
+    "longitude" DOUBLE PRECISION NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "isAdmin" BOOLEAN NOT NULL DEFAULT false,
+    "lastLogin" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
--- DropForeignKey
-ALTER TABLE "public"."File" DROP CONSTRAINT "File_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "public"."Folder" DROP CONSTRAINT "Folder_parentId_fkey";
-
--- DropForeignKey
-ALTER TABLE "public"."Folder" DROP CONSTRAINT "Folder_userId_fkey";
-
--- AlterTable
-ALTER TABLE "public"."User" ADD COLUMN     "isAdmin" BOOLEAN NOT NULL DEFAULT false;
-
--- DropTable
-DROP TABLE "public"."File";
-
--- DropTable
-DROP TABLE "public"."Folder";
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "public"."filesystem_items" (
@@ -43,6 +35,12 @@ CREATE TABLE "public"."filesystem_items" (
 
     CONSTRAINT "filesystem_items_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_accessCode_key" ON "public"."User"("accessCode");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "filesystem_items_path_key" ON "public"."filesystem_items"("path");
