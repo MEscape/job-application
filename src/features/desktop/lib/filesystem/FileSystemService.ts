@@ -1,4 +1,3 @@
-import { PrismaClient, FileType, Prisma } from "@/generated/prisma";
 import { FileSystemUtils } from "../../utils/FileSystemUtils";
 import {FileSystemItemsQueryRequest, FileUploadRequest} from "@/features/desktop/lib/filesystem/fileSystemScheme";
 import { writeFile, mkdir } from 'fs/promises';
@@ -8,6 +7,7 @@ import {
     FileSystemError,
     InvalidPathError
 } from "@/errors/FileSystemErrors";
+import { PrismaClient, FileType, Prisma } from "@prisma/client";
 
 export type SortBy = 'name' | 'dateModified' | 'size' | 'type'
 export type SortOrder = 'asc' | 'desc'
@@ -92,7 +92,7 @@ export class FileSystemService {
      * Uploads a file to the specified directory
      */
     async uploadFile(request: FileUploadRequest, fileBuffer: Buffer): Promise<FileSystemItemBase> {
-        const { path: uploadPath, fileName, fileSize } = request
+        const { path: uploadPath, fileName, fileSize, uploadedBy } = request
 
         // Validate and normalize the upload path
         if (!FileSystemUtils.isValidPath(uploadPath)) {
@@ -144,6 +144,7 @@ export class FileSystemService {
                 parentPath: normalizedPath,
                 size: fileSize,
                 extension,
+                uploadedBy,
             }
         })
 

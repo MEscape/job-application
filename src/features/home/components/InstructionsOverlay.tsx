@@ -8,6 +8,15 @@ export function InstructionsOverlay() {
     const scene = useScene();
     const [isLoadingComplete, setIsLoadingComplete] = useState(false);
 
+    // Handle overlay click to trigger the same actions as Tab/Esc
+    const handleOverlayClick = () => {
+        if (scene.canMoveToDesk) {
+            scene.startAnimation('moving-to-desk');
+        } else if (scene.canReturnHome) {
+            scene.startAnimation('returning-home');
+        }
+    };
+
     // Check if loading overlay is still visible by looking for iframe
     useEffect(() => {
         const checkLoadingComplete = () => {
@@ -91,7 +100,8 @@ export function InstructionsOverlay() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: -20 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="absolute top-4 left-4 sm:top-6 sm:left-6 text-white bg-black/70 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/20 shadow-2xl z-10 hover:bg-black/80 transition-all duration-300 max-w-xs sm:max-w-none"
+                onClick={handleOverlayClick}
+                className="absolute top-4 left-4 sm:top-6 sm:left-6 text-white bg-black/70 backdrop-blur-md p-3 sm:p-4 rounded-2xl border border-white/20 shadow-2xl z-10 hover:bg-black/80 transition-all duration-300 max-w-xs sm:max-w-none cursor-pointer"
             >
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 rounded-2xl pointer-events-none" />
                 <div className="text-xs sm:text-sm font-medium relative z-10">{content}</div>

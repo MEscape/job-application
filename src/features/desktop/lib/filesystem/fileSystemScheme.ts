@@ -14,6 +14,7 @@ export const FileUploadSchema = z.object({
     path: z.string().min(1, 'Upload path is required'),
     fileName: z.string().min(1, 'File name is required'),
     fileSize: z.number().positive('File size must be positive'),
+    uploadedBy: z.string().min(1, 'Uploaded by is required'),
     mimeType: z.string().refine(
         (type) => type === 'application/pdf',
         'Only PDF files are allowed'

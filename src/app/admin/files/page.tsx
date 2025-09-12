@@ -1,10 +1,14 @@
 "use client"
 
-import { FileText, Upload, Search, Filter, Download, Trash2, Eye, MoreVertical } from "lucide-react"
+import { FileText, Upload, Search, Filter, Download, Trash2, Eye, MoreVertical, Plus } from "lucide-react"
 import { useState } from "react"
+import { FileUploadModal } from "@/features/admin/components/FileUploadModal"
+import { FakeFileModal } from "@/features/admin/components/FakeFileModal"
 
 export default function AdminFilesPage() {
     const [searchTerm, setSearchTerm] = useState("")
+    const [showUploadModal, setShowUploadModal] = useState(false)
+    const [showFakeFileModal, setShowFakeFileModal] = useState(false)
     
     // Mock file data
     const files = [
@@ -44,10 +48,22 @@ export default function AdminFilesPage() {
                     <h1 className="text-2xl font-bold text-white">Files</h1>
                     <p className="text-white/60 mt-1">Manage uploaded files and documents</p>
                 </div>
-                <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                    <Upload className="w-4 h-4" />
-                    <span>Upload File</span>
-                </button>
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => setShowFakeFileModal(true)}
+                        className="flex items-center space-x-2 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span>Create Fake File</span>
+                    </button>
+                    <button 
+                        onClick={() => setShowUploadModal(true)}
+                        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                    >
+                        <Upload className="w-4 h-4" />
+                        <span>Upload File</span>
+                    </button>
+                </div>
             </div>
 
             {/* Search and Filters */}
@@ -166,6 +182,25 @@ export default function AdminFilesPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Modals */}
+            <FileUploadModal 
+                isOpen={showUploadModal}
+                onClose={() => setShowUploadModal(false)}
+                onSuccess={() => {
+                    // Refresh files list here if needed
+                    console.log('File uploaded successfully')
+                }}
+            />
+            
+            <FakeFileModal 
+                isOpen={showFakeFileModal}
+                onClose={() => setShowFakeFileModal(false)}
+                onSuccess={() => {
+                    // Refresh files list here if needed
+                    console.log('Fake file created successfully')
+                }}
+            />
         </div>
     )
 }

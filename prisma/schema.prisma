@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/@prisma/client"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -29,6 +29,9 @@ model User {
   lastLogin  DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
+
+  // Relationships
+  uploadedFiles FileSystemItem[]
 }
 
 enum FileType {
@@ -52,6 +55,11 @@ model FileSystemItem {
   size       Int? // null für Ordner
   extension  String?
 
+  filePath   String?
+  isReal     Boolean @default(false) 
+  uploadedBy String
+  downloadCount Int @default(0)
+
   // Timestamps
   dateCreated  DateTime @default(now())
   dateModified DateTime @updatedAt
@@ -59,10 +67,12 @@ model FileSystemItem {
   // Relationships
   parent   FileSystemItem?  @relation("ParentChild", fields: [parentPath], references: [path])
   children FileSystemItem[] @relation("ParentChild")
+  uploader User? @relation(fields: [uploadedBy], references: [id])
 
-  // Indices für bessere Performance
+  // Indices
   @@index([parentPath])
   @@index([type])
   @@index([path])
+  @@index([uploadedBy])
   @@map("filesystem_items")
 }
