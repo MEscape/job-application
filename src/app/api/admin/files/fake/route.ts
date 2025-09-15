@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/features/shared/lib'
-import { auth } from '@/features/auth/lib/auth'
 import { z } from 'zod'
 import { FileType } from '@prisma/client'
+import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
 
 // Validation schema for fake file creation
 const FakeFileSchema = z.object({
@@ -34,8 +34,6 @@ function handleError(error: unknown) {
   )
 }
 
-// Function removed - using FileType enum directly
-
 function getExtensionFromType(fileType: FileType): string {
   switch (fileType) {
     case FileType.DOCUMENT:
@@ -60,21 +58,7 @@ function getExtensionFromType(fileType: FileType): string {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication and admin privileges
-    const session = await auth()
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
-    }
-
-    if (!session.user.isAdmin) {
-      return NextResponse.json(
-        { error: 'Admin privileges required' },
-        { status: 403 }
-      )
-    }
+    const user = await requireAdmin()
 
     const body = await request.json()
     const validatedRequest = FakeFileSchema.parse(body)
@@ -112,7 +96,7 @@ export async function POST(request: NextRequest) {
         extension: getExtensionFromType(validatedRequest.fileType),
         filePath: null, // No physical file path
         isReal: false, // Mark as fake file
-        uploadedBy: session.user.id,
+        uploadedBy: user.id,
         downloadCount: 0
       }
     })

@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { FileType } from '@prisma/client'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
+import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
 
 // Validation schema for admin file uploads
 const AdminFileUploadSchema = z.object({
@@ -70,21 +71,7 @@ function getExtensionFromMime(mimeType: string, fileName: string): string | null
 export async function POST(request: NextRequest) {
   try {
     // Check authentication and admin privileges
-    const session = await auth()
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
-    }
-
-    if (!session.user.isAdmin) {
-      return NextResponse.json(
-        { error: 'Admin privileges required' },
-        { status: 403 }
-      )
-    }
+    const user = await requireAdmin()
 
     const formData = await request.formData()
     const file = formData.get('file') as File
@@ -188,7 +175,7 @@ export async function POST(request: NextRequest) {
         extension,
         filePath: process.env.NODE_ENV === 'production' ? (actualBlobUrl) : `/uploads/${uniqueFileName}`, // Store actual blob URL in prod, local path in dev
         isReal: true, // Mark as real file
-        uploadedBy: session.user.id,
+        uploadedBy: user.id,
         downloadCount: 0
       }
     })

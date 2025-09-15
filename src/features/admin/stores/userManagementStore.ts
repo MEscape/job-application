@@ -54,10 +54,13 @@ export interface UserManagementState {
     isDeleting: boolean
     error: string | null
     lastFetched: Date | null
+    currentPage: number
+    totalPages: number
+    totalUsers: number
 }
 
 export interface UserManagementActions {
-    fetchUsers: () => Promise<void>
+    fetchUsers: (page?: number, limit?: number) => Promise<void>
     createUser: (userData: CreateUserData) => Promise<User>
     updateUser: (userData: UpdateUserData) => Promise<User>
     deleteUser: (userId: string) => Promise<void>
@@ -65,6 +68,7 @@ export interface UserManagementActions {
     toggleUserRole: (userId: string) => Promise<void>
     setSearchTerm: (term: string) => void
     setFilters: (filters: Partial<UserFilters>) => void
+    setPage: (page: number) => void
     refreshUsers: () => Promise<void>
     clearError: () => void
 }
@@ -87,7 +91,10 @@ export const createUserManagementStore = () => {
         isUpdating: false,
         isDeleting: false,
         error: null,
-        lastFetched: null
+        lastFetched: null,
+        currentPage: 1,
+        totalPages: 1,
+        totalUsers: 0
     }
 
     const setState = (newState: Partial<UserManagementState>) => {
@@ -125,18 +132,40 @@ export const createUserManagementStore = () => {
         })
     }
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (page: number = 1, limit: number = 10) => {
         try {
             setState({ isLoading: true, error: null })
             
-            const response = await fetch('/api/admin/users')
+            const params = new URLSearchParams({
+                page: page.toString(),
+                limit: limit.toString()
+            })
+
+            // Add search and filter params
+            if (state.searchTerm) {
+                params.append('search', state.searchTerm)
+            }
+            if (state.filters.role && state.filters.role !== 'all') {
+                params.append('role', state.filters.role)
+            }
+            if (state.filters.status && state.filters.status !== 'all') {
+                params.append('status', state.filters.status)
+            }
+            if (state.filters.company) {
+                params.append('company', state.filters.company)
+            }
+            
+            const response = await fetch(`/api/admin/users?${params}`)
             if (!response.ok) {
                 throw new Error(`Failed to fetch users: ${response.statusText}`)
             }
             
-            const users = await response.json()
+            const data = await response.json()
             setState({ 
-                users, 
+                users: data.users || data, // Handle both paginated and non-paginated responses
+                currentPage: data.pagination?.page || page,
+                totalPages: data.pagination?.totalPages || 1,
+                totalUsers: data.pagination?.total || (data.users || data).length,
                 isLoading: false, 
                 lastFetched: new Date() 
             })
@@ -264,16 +293,27 @@ export const createUserManagementStore = () => {
 
     const setSearchTerm = (term: string) => {
         setState({ searchTerm: term })
+        // Trigger a new fetch with the search term
+        if (term !== state.searchTerm) {
+            fetchUsers(1) // Reset to page 1 when searching
+        }
     }
 
     const setFilters = (newFilters: Partial<UserFilters>) => {
         setState({ 
             filters: { ...state.filters, ...newFilters }
         })
+        // Trigger a new fetch with the filters
+        fetchUsers(1) // Reset to page 1 when filtering
+    }
+
+    const setPage = (page: number) => {
+        setState({ currentPage: page })
+        fetchUsers(page)
     }
 
     const refreshUsers = async () => {
-        await fetchUsers()
+        await fetchUsers(state.currentPage)
     }
 
     const clearError = () => {
@@ -289,6 +329,7 @@ export const createUserManagementStore = () => {
         toggleUserRole,
         setSearchTerm,
         setFilters,
+        setPage,
         refreshUsers,
         clearError
     }

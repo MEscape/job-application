@@ -11,7 +11,8 @@ export function useCredentials(initialCredentials: Credentials = { accessCode: '
     const updateCredential = useCallback(function updateCredentialFn(field: keyof Credentials) {
         return function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
             setCredentials(function(prev) {
-                return { ...prev, [field]: e.target.value };
+                const value = field === 'accessCode' ? e.target.value.toUpperCase() : e.target.value;
+                return { ...prev, [field]: value };
             });
         }
     }, []);

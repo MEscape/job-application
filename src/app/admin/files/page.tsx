@@ -1,206 +1,53 @@
 "use client"
 
-import { FileText, Upload, Search, Filter, Download, Trash2, Eye, MoreVertical, Plus } from "lucide-react"
-import { useState } from "react"
-import { FileUploadModal } from "@/features/admin/components/FileUploadModal"
-import { FakeFileModal } from "@/features/admin/components/FakeFileModal"
+import { motion } from "framer-motion"
+import { CreateFakeFileButton, UploadFileButton, FileManagementTable } from "@/features/admin/components"
 
 export default function AdminFilesPage() {
-    const [searchTerm, setSearchTerm] = useState("")
-    const [showUploadModal, setShowUploadModal] = useState(false)
-    const [showFakeFileModal, setShowFakeFileModal] = useState(false)
-    
-    // Mock file data
-    const files = [
-        { id: 1, name: "project-proposal.pdf", size: "2.4 MB", type: "PDF", uploadedBy: "John Doe", uploadDate: "2024-01-15", downloads: 12 },
-        { id: 2, name: "user-manual.docx", size: "1.8 MB", type: "Document", uploadedBy: "Jane Smith", uploadDate: "2024-01-14", downloads: 8 },
-        { id: 3, name: "presentation.pptx", size: "5.2 MB", type: "Presentation", uploadedBy: "Bob Johnson", uploadDate: "2024-01-13", downloads: 15 },
-        { id: 4, name: "data-export.xlsx", size: "3.1 MB", type: "Spreadsheet", uploadedBy: "Alice Brown", uploadDate: "2024-01-12", downloads: 6 },
-        { id: 5, name: "system-backup.zip", size: "45.7 MB", type: "Archive", uploadedBy: "System", uploadDate: "2024-01-11", downloads: 2 },
-    ]
-
-    const filteredFiles = files.filter(file => 
-        file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        file.type.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-
-    const getFileIcon = (type: string) => {
-        switch (type.toLowerCase()) {
-            case 'pdf': return '📄'
-            case 'document': return '📝'
-            case 'presentation': return '📊'
-            case 'spreadsheet': return '📈'
-            case 'archive': return '🗜️'
-            default: return '📁'
-        }
-    }
-
-    const totalSize = files.reduce((acc, file) => {
-        const size = parseFloat(file.size.split(' ')[0])
-        return acc + size
-    }, 0)
-
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-white">Files</h1>
-                    <p className="text-white/60 mt-1">Manage uploaded files and documents</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button 
-                        onClick={() => setShowFakeFileModal(true)}
-                        className="flex items-center space-x-2 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition-colors"
+        <div className="space-y-8 lg:space-y-10">
+            {/* Header Section */}
+            <motion.div
+                initial={{ opacity: 0, y: -30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+                className="space-y-6"
+            >
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 xl:gap-8">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        className="space-y-2"
                     >
-                        <Plus className="w-4 h-4" />
-                        <span>Create Fake File</span>
-                    </button>
-                    <button 
-                        onClick={() => setShowUploadModal(true)}
-                        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                        <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-300 bg-clip-text text-transparent">
+                            File Management
+                        </h1>
+                        <p className="text-slate-400 text-base lg:text-lg">
+                            Manage uploaded files and documents
+                        </p>
+                    </motion.div>
+                    <motion.div
+                        className="flex items-center gap-3"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
                     >
-                        <Upload className="w-4 h-4" />
-                        <span>Upload File</span>
-                    </button>
+                        <UploadFileButton />
+                        <CreateFakeFileButton />
+                    </motion.div>
                 </div>
-            </div>
+            </motion.div>
 
-            {/* Search and Filters */}
-            <div className="flex items-center space-x-4">
-                <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 w-4 h-4" />
-                    <input
-                        type="text"
-                        placeholder="Search files..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                </div>
-                <button className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors border border-white/20">
-                    <Filter className="w-4 h-4" />
-                    <span>Filter</span>
-                </button>
-            </div>
-
-            {/* Files Table */}
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-white/5 border-b border-white/10">
-                            <tr>
-                                <th className="text-left py-4 px-6 text-white/80 font-medium">File</th>
-                                <th className="text-left py-4 px-6 text-white/80 font-medium">Size</th>
-                                <th className="text-left py-4 px-6 text-white/80 font-medium">Uploaded By</th>
-                                <th className="text-left py-4 px-6 text-white/80 font-medium">Upload Date</th>
-                                <th className="text-left py-4 px-6 text-white/80 font-medium">Downloads</th>
-                                <th className="text-right py-4 px-6 text-white/80 font-medium">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredFiles.map((file) => (
-                                <tr key={file.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                    <td className="py-4 px-6">
-                                        <div className="flex items-center space-x-3">
-                                            <span className="text-2xl">{getFileIcon(file.type)}</span>
-                                            <div>
-                                                <p className="text-white font-medium">{file.name}</p>
-                                                <p className="text-white/60 text-sm">{file.type}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-6 text-white/70">{file.size}</td>
-                                    <td className="py-4 px-6 text-white/70">{file.uploadedBy}</td>
-                                    <td className="py-4 px-6 text-white/70">{file.uploadDate}</td>
-                                    <td className="py-4 px-6">
-                                        <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full text-xs font-medium">
-                                            {file.downloads}
-                                        </span>
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        <div className="flex items-center justify-end space-x-2">
-                                            <button className="text-white/60 hover:text-white transition-colors p-1">
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-                                            <button className="text-white/60 hover:text-white transition-colors p-1">
-                                                <Download className="w-4 h-4" />
-                                            </button>
-                                            <button className="text-white/60 hover:text-red-400 transition-colors p-1">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                            <button className="text-white/60 hover:text-white transition-colors p-1">
-                                                <MoreVertical className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6">
-                    <div className="flex items-center space-x-3">
-                        <FileText className="w-8 h-8 text-blue-400" />
-                        <div>
-                            <p className="text-2xl font-bold text-white">{files.length}</p>
-                            <p className="text-white/60 text-sm">Total Files</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold text-xs">MB</span>
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-white">{totalSize.toFixed(1)}</p>
-                            <p className="text-white/60 text-sm">Total Size (MB)</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6">
-                    <div className="flex items-center space-x-3">
-                        <Download className="w-8 h-8 text-purple-400" />
-                        <div>
-                            <p className="text-2xl font-bold text-white">{files.reduce((acc, file) => acc + file.downloads, 0)}</p>
-                            <p className="text-white/60 text-sm">Total Downloads</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-6">
-                    <div className="flex items-center space-x-3">
-                        <Upload className="w-8 h-8 text-orange-400" />
-                        <div>
-                            <p className="text-2xl font-bold text-white">5</p>
-                            <p className="text-white/60 text-sm">Today&#39;s Uploads</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Modals */}
-            <FileUploadModal 
-                isOpen={showUploadModal}
-                onClose={() => setShowUploadModal(false)}
-                onSuccess={() => {
-                    // Refresh files list here if needed
-                    console.log('File uploaded successfully')
-                }}
-            />
-            
-            <FakeFileModal 
-                isOpen={showFakeFileModal}
-                onClose={() => setShowFakeFileModal(false)}
-                onSuccess={() => {
-                    // Refresh files list here if needed
-                    console.log('Fake file created successfully')
-                }}
-            />
+            {/* File Management Table Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+                className="bg-slate-900/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 lg:p-8"
+            >
+                <FileManagementTable />
+            </motion.div>
         </div>
     )
 }

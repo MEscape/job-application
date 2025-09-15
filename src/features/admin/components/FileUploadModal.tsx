@@ -83,7 +83,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       setFormData(prev => ({ 
         ...prev, 
         file,
-        fileName: prev.fileName || file.name.replace(/\.[^/.]+$/, '') // Remove extension
+        fileName: prev.fileName || file.name // Keep original filename with extension
       }))
       setErrors(prev => ({ ...prev, file: undefined }))
     }
@@ -96,7 +96,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       setFormData(prev => ({ 
         ...prev, 
         file,
-        fileName: prev.fileName || file.name.replace(/\.[^/.]+$/, '')
+        fileName: prev.fileName || file.name // Keep original filename with extension
       }))
       setErrors(prev => ({ ...prev, file: undefined }))
     }

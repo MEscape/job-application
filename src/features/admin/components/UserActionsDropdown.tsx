@@ -40,9 +40,23 @@ export function UserActionsDropdown({ user }: UserActionsDropdownProps) {
         function handleScroll() {
             if (isOpen && buttonRef.current && typeof window !== 'undefined') {
                 const rect = buttonRef.current.getBoundingClientRect()
+                const dropdownWidth = 192 // w-48 width
+                const viewportWidth = window.innerWidth
+                
+                // Center the dropdown relative to the button, but keep it within viewport
+                let leftPosition = rect.left + window.scrollX + (rect.width / 2) - (dropdownWidth / 2)
+                
+                // Ensure dropdown doesn't go off-screen
+                if (leftPosition + dropdownWidth > viewportWidth) {
+                    leftPosition = viewportWidth - dropdownWidth - 8
+                }
+                if (leftPosition < 8) {
+                    leftPosition = 8
+                }
+                
                 setDropdownPosition({
                     top: rect.bottom + window.scrollY + 8,
-                    left: rect.right + window.scrollX - 192 // 192px is w-48 width
+                    left: leftPosition
                 })
             }
         }
@@ -65,9 +79,23 @@ export function UserActionsDropdown({ user }: UserActionsDropdownProps) {
     const handleToggleDropdown = () => {
         if (!isOpen && buttonRef.current && typeof window !== 'undefined') {
             const rect = buttonRef.current.getBoundingClientRect()
+            const dropdownWidth = 192 // w-48 width
+            const viewportWidth = window.innerWidth
+            
+            // Center the dropdown relative to the button, but keep it within viewport
+            let leftPosition = rect.left + window.scrollX + (rect.width / 2) - (dropdownWidth / 2)
+            
+            // Ensure dropdown doesn't go off-screen
+            if (leftPosition + dropdownWidth > viewportWidth) {
+                leftPosition = viewportWidth - dropdownWidth - 8
+            }
+            if (leftPosition < 8) {
+                leftPosition = 8
+            }
+            
             setDropdownPosition({
                 top: rect.bottom + window.scrollY + 8,
-                left: rect.right + window.scrollX - 192 // 192px is w-48 width
+                left: leftPosition
             })
         }
         setIsOpen(!isOpen)

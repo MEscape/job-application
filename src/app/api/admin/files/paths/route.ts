@@ -1,26 +1,12 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/features/shared/lib'
-import { auth } from '@/features/auth/lib/auth'
 import { FileType } from '@prisma/client'
+import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
 
 export async function GET() {
   try {
     // Check authentication
-    const session = await auth()
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
-    }
-
-    // Check if user is admin
-    if (!session.user.isAdmin) {
-      return NextResponse.json(
-        { error: 'Admin privileges required' },
-        { status: 403 }
-      )
-    }
+    await requireAdmin()
 
     // Get all folders from the database
     const folders = await prisma.fileSystemItem.findMany({

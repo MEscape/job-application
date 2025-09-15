@@ -30,6 +30,10 @@ CREATE TABLE "public"."filesystem_items" (
     "parentPath" TEXT,
     "size" INTEGER,
     "extension" TEXT,
+    "filePath" TEXT,
+    "isReal" BOOLEAN NOT NULL DEFAULT false,
+    "uploadedBy" TEXT NOT NULL,
+    "downloadCount" INTEGER NOT NULL DEFAULT 0,
     "dateCreated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "dateModified" TIMESTAMP(3) NOT NULL,
 
@@ -54,5 +58,11 @@ CREATE INDEX "filesystem_items_type_idx" ON "public"."filesystem_items"("type");
 -- CreateIndex
 CREATE INDEX "filesystem_items_path_idx" ON "public"."filesystem_items"("path");
 
+-- CreateIndex
+CREATE INDEX "filesystem_items_uploadedBy_idx" ON "public"."filesystem_items"("uploadedBy");
+
 -- AddForeignKey
 ALTER TABLE "public"."filesystem_items" ADD CONSTRAINT "filesystem_items_parentPath_fkey" FOREIGN KEY ("parentPath") REFERENCES "public"."filesystem_items"("path") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."filesystem_items" ADD CONSTRAINT "filesystem_items_uploadedBy_fkey" FOREIGN KEY ("uploadedBy") REFERENCES "public"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

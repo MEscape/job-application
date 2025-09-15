@@ -65,7 +65,7 @@ model FileSystemItem {
   dateModified DateTime @updatedAt
 
   // Relationships
-  parent   FileSystemItem?  @relation("ParentChild", fields: [parentPath], references: [path])
+  parent   FileSystemItem?  @relation("ParentChild", fields: [parentPath], references: [path], onDelete: Cascade)
   children FileSystemItem[] @relation("ParentChild")
   uploader User? @relation(fields: [uploadedBy], references: [id])
 

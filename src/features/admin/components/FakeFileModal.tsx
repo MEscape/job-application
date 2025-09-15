@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { File, Video, AlertCircle, CheckCircle2, FileText, Image, Music, Archive, Code, Folder } from 'lucide-react'
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { File, Video, AlertCircle, CheckCircle2, CheckCircle, FileText, Image, Music, Archive, Code, Folder } from "lucide-react"
 import { Modal } from './Modal'
 import { PathInput } from './PathInput'
 import toast from 'react-hot-toast'
@@ -44,6 +44,7 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
   })
   
   const [errors, setErrors] = useState<FormErrors>({})
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
@@ -90,6 +91,7 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
       }
       
       setCreateProgress({ isCreating: false, status: 'success' })
+      setShowSuccess(true)
       toast.success('Fake file created successfully!')
       
       // Reset form
@@ -101,7 +103,8 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
         onSuccess?.()
         onClose()
         setCreateProgress({ isCreating: false, status: 'idle' })
-      }, 1000)
+        setShowSuccess(false)
+      }, 1500)
       
     } catch (error) {
       setCreateProgress({ 
@@ -145,6 +148,45 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
       default:
         return <FileText className="w-6 h-6 text-gray-400" />
     }
+  }
+
+  // Show success animation
+  if (showSuccess) {
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        title="Success"
+        maxWidth="md"
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-8"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4"
+          >
+            <CheckCircle className="w-8 h-8 text-green-400" />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <h3 className="text-xl font-semibold text-white mb-2">
+              Fake File Created Successfully!
+            </h3>
+            <p className="text-slate-400">
+              {formData.fileName} has been created in the database.
+            </p>
+          </motion.div>
+        </motion.div>
+      </Modal>
+    )
   }
 
   return (

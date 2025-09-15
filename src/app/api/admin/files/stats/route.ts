@@ -24,6 +24,25 @@ export async function GET() {
             }
         })
 
+        // Get real vs fake files breakdown
+        const realFiles = await prisma.fileSystemItem.count({
+            where: {
+                AND: [
+                    { isReal: true },
+                    { type: { not: FileType.FOLDER } }
+                ]
+            }
+        })
+
+        const fakeFiles = await prisma.fileSystemItem.count({
+            where: {
+                AND: [
+                    { isReal: false },
+                    { type: { not: FileType.FOLDER } }
+                ]
+            }
+        })
+
         // Get file type breakdown
         const fileTypeStats = await prisma.fileSystemItem.groupBy({
             by: ['type'],
@@ -37,18 +56,30 @@ export async function GET() {
             }
         })
 
-        // Calculate total storage used (sum of all file sizes)
+        // Get real/fake breakdown by type
+        const realFakeByType = await prisma.fileSystemItem.groupBy({
+            by: ['type', 'isReal'],
+            _count: {
+                type: true
+            },
+            where: {
+                type: {
+                    not: FileType.FOLDER
+                }
+            }
+        })
+
+        // Calculate total storage used (sum of all real file sizes)
         const storageStats = await prisma.fileSystemItem.aggregate({
             _sum: {
                 size: true
             },
             where: {
-                type: {
-                    not: FileType.FOLDER
-                },
-                size: {
-                    not: null
-                }
+                AND: [
+                    { type: { not: FileType.FOLDER } },
+                    { isReal: true },
+                    { size: { not: null } }
+                ]
             }
         })
 
@@ -73,34 +104,48 @@ export async function GET() {
             }
         })
 
+        const topDownloaded = await prisma.fileSystemItem.findMany({
+            where: {
+                type: {
+                    not: FileType.FOLDER
+                },
+                downloadCount: {
+                    gt: 0
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+                downloadCount: true,
+                isReal: true
+            },
+            orderBy: {
+                downloadCount: 'desc'
+            },
+            take: 5
+        })
+
         return NextResponse.json({
-            totalFiles,
-            totalFolders,
+            total: totalFiles,
+            real: realFiles,
+            fake: fakeFiles,
+            folders: totalFolders,
             totalItems: totalFiles + totalFolders,
-            recentFiles,
+            recent: recentFiles,
             totalStorageBytes: storageStats._sum.size || 0,
             fileTypeBreakdown: fileTypeStats.map(stat => ({
                 type: stat.type,
                 count: stat._count.type
-            }))
+            })),
+            realFakeBreakdown: realFakeByType.map(stat => ({
+                type: stat.type,
+                isReal: stat.isReal,
+                count: stat._count.type
+            })),
+            topDownloaded
         })
     } catch (error) {
         console.error('Error fetching file stats:', error)
-        
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
 
         return NextResponse.json(
             { error: "Internal server error" },

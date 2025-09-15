@@ -5,6 +5,7 @@ import { Search, Filter } from "lucide-react"
 import { useUserManagementStore } from "@/features/admin/hooks/useUserManagementStore"
 import { UserActionsDropdown } from "./UserActionsDropdown"
 import { motion } from "framer-motion"
+import { Pagination } from "./Pagination"
 
 export function UserManagementTable() {
     const {
@@ -13,9 +14,13 @@ export function UserManagementTable() {
         filters,
         isLoading,
         error,
+        currentPage,
+        totalPages,
+        totalUsers,
         fetchUsers,
         setSearchTerm,
         setFilters,
+        setPage,
         clearError
     } = useUserManagementStore()
 
@@ -253,6 +258,15 @@ export function UserManagementTable() {
                         </div>
                     </>
                 )}
+                
+                {/* Pagination */}
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={totalUsers}
+                    onPageChange={setPage}
+                    isLoading={isLoading}
+                />
             </div>
         </div>
     )
