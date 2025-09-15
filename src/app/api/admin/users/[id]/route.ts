@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/features/shared/lib"
 import { requireAdmin } from "@/features/auth/lib/adminMiddleware"
 import { z } from "zod"
+import { SessionTracker } from "@/features/auth/lib/sessionTracking"
 
 const updateUserSchema = z.object({
     email: z.string().email("Invalid email format").optional(),
@@ -31,7 +32,7 @@ interface RouteParams {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
     try {
         // Check if user has admin privileges
-        await requireAdmin()
+        const adminUser = await requireAdmin()
 
         const { id } = await params
         const body = await request.json()
@@ -86,6 +87,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             }
         })
 
+        // Log user update
+        await SessionTracker.logActivity({
+            userId: adminUser.id,
+            action: 'UPDATE_USER',
+            resource: `api/admin/users/${id}`
+        })
+
         return NextResponse.json(updatedUser)
     } catch (error) {
         console.error('Error updating user:', error)
@@ -125,7 +133,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     try {
         // Check if user has admin privileges
-        await requireAdmin()
+        const adminUser = await requireAdmin()
 
         const { id } = await params
 
@@ -151,6 +159,13 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
         await prisma.user.delete({
             where: { id }
+        })
+
+        // Log user deletion
+        await SessionTracker.logActivity({
+            userId: adminUser.id,
+            action: 'DELETE_USER',
+            resource: `api/admin/users/${id}`
         })
 
         return NextResponse.json(

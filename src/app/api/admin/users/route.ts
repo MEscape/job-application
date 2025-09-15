@@ -4,11 +4,19 @@ import { requireAdmin } from "@/features/auth/lib/adminMiddleware"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 import {generateAccessCode, generatePassword, signUpSchema} from "@/features/auth/lib";
+import { SessionTracker } from "@/features/auth/lib/sessionTracking"
 
 export async function GET() {
     try {
         // Check if user has admin privileges
-        await requireAdmin()
+        const adminUser = await requireAdmin()
+
+        // Log user list access
+        await SessionTracker.logActivity({
+            userId: adminUser.id,
+            action: 'VIEW_USERS',
+            resource: 'api/admin/users'
+        })
 
         const users = await prisma.user.findMany({
             select: {
@@ -60,7 +68,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
     try {
         // Check if user has admin privileges
-        await requireAdmin()
+        const adminUser = await requireAdmin()
 
         const body = await request.json()
         const validatedData = signUpSchema.parse(body)
@@ -119,6 +127,13 @@ export async function POST(request: NextRequest) {
                 createdAt: true,
                 updatedAt: true
             }
+        })
+
+        // Log user creation
+        await SessionTracker.logActivity({
+            userId: adminUser.id,
+            action: 'CREATE_USER',
+            resource: `api/admin/users/${newUser.id}`
         })
 
         // Return user data with the unhashed password for admin reference

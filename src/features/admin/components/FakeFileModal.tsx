@@ -5,7 +5,6 @@ import { motion } from "framer-motion"
 import { File, Video, AlertCircle, CheckCircle2, CheckCircle, FileText, Image, Music, Archive, Code, Folder } from "lucide-react"
 import { Modal } from './Modal'
 import { PathInput } from './PathInput'
-import toast from 'react-hot-toast'
 
 interface FakeFileModalProps {
   isOpen: boolean
@@ -92,8 +91,7 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
       
       setCreateProgress({ isCreating: false, status: 'success' })
       setShowSuccess(true)
-      toast.success('Fake file created successfully!')
-      
+
       // Reset form
       setFormData({ fileName: '', parentPath: '/', fileType: '' })
       setErrors({})
@@ -112,7 +110,6 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
         status: 'error',
         error: error instanceof Error ? error.message : 'Creation failed'
       })
-      toast.error(error instanceof Error ? error.message : 'Creation failed')
     }
   }
 

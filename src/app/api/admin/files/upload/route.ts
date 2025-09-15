@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 import { prisma } from '@/features/shared/lib'
-import { auth } from '@/features/auth/lib/auth'
 import { z } from 'zod'
 import { FileType } from '@prisma/client'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
+import { SessionTracker } from '@/features/auth/lib/sessionTracking'
 
 // Validation schema for admin file uploads
 const AdminFileUploadSchema = z.object({
@@ -178,6 +178,13 @@ export async function POST(request: NextRequest) {
         uploadedBy: user.id,
         downloadCount: 0
       }
+    })
+
+    // Log file upload
+    await SessionTracker.logActivity({
+      userId: user.id,
+      action: 'UPLOAD_FILE',
+      resource: `api/admin/files/upload/${newFile.id}`
     })
 
     return NextResponse.json({

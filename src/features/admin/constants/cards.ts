@@ -1,4 +1,4 @@
-import {Activity, FileText, Settings, Users} from "lucide-react";
+import {Activity, FileText, Users} from "lucide-react";
 
 export const dashboardCards = [
     {
@@ -21,12 +21,5 @@ export const dashboardCards = [
         icon: Activity,
         href: "/admin/activity",
         color: "purple"
-    },
-    {
-        title: "Settings",
-        description: "Configure application settings and system preferences",
-        icon: Settings,
-        href: "/admin/settings",
-        color: "amber"
     }
 ]

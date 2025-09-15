@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import React from "react";
-import {NextAuthProvider} from "@/providers";
+import {NextAuthProvider, ActivityProvider} from "@/providers";
 
 const inter = Inter({
     variable: "--font-inter",
@@ -49,7 +49,9 @@ export default function RootLayout({
               <body
                   className={`${inter.variable} antialiased`}
               >
-                  {children}
+                  <ActivityProvider>
+                      {children}
+                  </ActivityProvider>
               </body>
           </html>
       </NextAuthProvider>

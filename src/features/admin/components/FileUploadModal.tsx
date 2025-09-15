@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { Upload, File, Video, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Modal } from './Modal'
 import { PathInput } from './PathInput'
-import toast from 'react-hot-toast'
 
 interface FileUploadModalProps {
   isOpen: boolean
@@ -140,8 +139,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       }
       
       setUploadProgress({ isUploading: false, progress: 100, status: 'success' })
-      toast.success('File uploaded successfully!')
-      
+
       // Reset form
       setFormData({ fileName: '', parentPath: '/', file: null })
       setErrors({})
@@ -160,7 +158,6 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
         status: 'error',
         error: error instanceof Error ? error.message : 'Upload failed'
       })
-      toast.error(error instanceof Error ? error.message : 'Upload failed')
     }
   }
 
