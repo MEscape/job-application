@@ -32,6 +32,8 @@ model User {
 
   // Relationships
   uploadedFiles FileSystemItem[]
+  activityLogs  ActivityLog[]
+  loginAttempts LoginAttempt[]
 }
 
 enum FileType {
@@ -55,10 +57,10 @@ model FileSystemItem {
   size       Int? // null für Ordner
   extension  String?
 
-  filePath   String?
-  isReal     Boolean @default(false) 
-  uploadedBy String
-  downloadCount Int @default(0)
+  filePath      String?
+  isReal        Boolean @default(false)
+  uploadedBy    String
+  downloadCount Int     @default(0)
 
   // Timestamps
   dateCreated  DateTime @default(now())
@@ -67,7 +69,7 @@ model FileSystemItem {
   // Relationships
   parent   FileSystemItem?  @relation("ParentChild", fields: [parentPath], references: [path], onDelete: Cascade)
   children FileSystemItem[] @relation("ParentChild")
-  uploader User? @relation(fields: [uploadedBy], references: [id])
+  uploader User?            @relation(fields: [uploadedBy], references: [id])
 
   // Indices
   @@index([parentPath])
@@ -75,4 +77,34 @@ model FileSystemItem {
   @@index([path])
   @@index([uploadedBy])
   @@map("filesystem_items")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String // 'login', 'logout', 'page_view'
+  resource  String?
+  success   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@map("activity_logs")
+}
+
+model LoginAttempt {
+  id         String   @id @default(cuid())
+  accessCode String
+  userId     String?
+  success    Boolean
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("login_attempts")
 }

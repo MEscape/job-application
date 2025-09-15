@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import {verifyPassword} from "./password"
 import {signInSchema} from "./validation"
 import {prisma} from "@/features/shared/lib"
+import {SessionTracker} from "./sessionTracking"
 
 export const config = {
     providers: [
@@ -25,14 +26,39 @@ export const config = {
 
                     // User not found or inactive
                     if (!user || !user.isActive) {
+                        // Log failed login attempt
+                        await SessionTracker.logLoginAttempt({
+                            accessCode,
+                            success: false
+                        })
                         return null
                     }
 
                     // Verify password using secure comparison
                     const isValidPassword = await verifyPassword(password, user.password)
                     if (!isValidPassword) {
+                        // Log failed login attempt with user ID
+                        await SessionTracker.logLoginAttempt({
+                            accessCode,
+                            userId: user.id,
+                            success: false
+                        })
                         return null
                     }
+
+                    // Log successful login attempt
+                    await SessionTracker.logLoginAttempt({
+                        accessCode,
+                        userId: user.id,
+                        success: true
+                    })
+
+                    // Log successful login activity
+                    await SessionTracker.logActivity({
+                        userId: user.id,
+                        action: 'LOGIN',
+                        resource: 'auth/login'
+                    })
 
                     // Update last login timestamp
                     await prisma.user.update({
@@ -51,6 +77,13 @@ export const config = {
                     }
                 } catch (error) {
                     console.error("Authentication error:", error)
+                    // Log failed login attempt due to error
+                    if (credentials?.accessCode) {
+                        await SessionTracker.logLoginAttempt({
+                            accessCode: credentials.accessCode as string,
+                            success: false
+                        })
+                    }
                     return null
                 }
             }

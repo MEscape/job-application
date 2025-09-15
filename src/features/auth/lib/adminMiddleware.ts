@@ -1,6 +1,7 @@
 import { auth } from "@/features/auth/lib/auth"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { SessionTracker } from "./sessionTracking"
 
 /**
  * Admin middleware to protect admin routes
@@ -36,8 +37,22 @@ export async function requireAdmin() {
     }
     
     if (!session.user.isAdmin) {
+        // Log failed admin API access attempt
+        await SessionTracker.logActivity({
+            userId: session.user.id,
+            action: 'ADMIN_API_ACCESS_DENIED',
+            resource: 'api/admin'
+        })
+        
         throw new Error("Admin privileges required")
     }
+    
+    // Log successful admin API access
+    await SessionTracker.logActivity({
+        userId: session.user.id,
+        action: 'ADMIN_API_ACCESS',
+        resource: 'api/admin'
+    })
     
     return session.user
 }

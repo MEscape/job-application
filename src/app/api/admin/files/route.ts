@@ -5,11 +5,12 @@ import { prisma } from "@/features/shared/lib"
 import { unlink } from "fs/promises"
 import { join } from "path"
 import { del } from "@vercel/blob"
+import { SessionTracker } from "@/features/auth/lib/sessionTracking"
 
 export async function GET(request: NextRequest) {
     try {
         // Check if user has admin privileges
-        await requireAdmin()
+        const adminUser = await requireAdmin()
 
         const { searchParams } = new URL(request.url)
         const id = searchParams.get('id')
@@ -37,6 +38,13 @@ export async function GET(request: NextRequest) {
                 )
             }
             
+            // Log file access
+            await SessionTracker.logActivity({
+                userId: adminUser.id,
+                action: 'VIEW_FILE',
+                resource: `api/admin/files/${id}`
+            })
+
             return NextResponse.json({
                 id: file.id,
                 name: file.name,
