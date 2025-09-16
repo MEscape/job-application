@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
 import { prisma } from '@/features/shared/lib'
+import { withErrorHandler, ErrorResponses } from '@/features/shared/lib/errorHandler'
 
-export async function DELETE(request: NextRequest) {
-    try {
+export const DELETE = withErrorHandler(async (request: NextRequest) => {
         await requireAdmin()
         
         const body = await request.json()
@@ -17,10 +17,7 @@ export async function DELETE(request: NextRequest) {
             const { startDate, endDate, onlyRead } = body
             
             if (!startDate || !endDate) {
-                return NextResponse.json(
-                    { error: 'Start date and end date are required for filtered deletion' },
-                    { status: 400 }
-                )
+                throw ErrorResponses.VALIDATION_ERROR
             }
             
             // Parse dates and set time boundaries
@@ -63,10 +60,7 @@ export async function DELETE(request: NextRequest) {
             const { logIds } = body
             
             if (!logIds || !Array.isArray(logIds) || logIds.length === 0) {
-                return NextResponse.json(
-                    { error: 'Invalid log IDs provided' },
-                    { status: 400 }
-                )
+                throw ErrorResponses.VALIDATION_ERROR
             }
             
             // Delete the activity logs
@@ -84,11 +78,4 @@ export async function DELETE(request: NextRequest) {
             })
         }
         
-    } catch (error) {
-        console.error('Error deleting activity logs:', error)
-        return NextResponse.json(
-            { error: 'Failed to delete activity logs' },
-            { status: 500 }
-        )
-    }
-}
+})

@@ -6,9 +6,20 @@ import { unlink } from "fs/promises"
 import { join } from "path"
 import { del } from "@vercel/blob"
 import { SessionTracker } from "@/features/auth/lib/sessionTracking"
+import { z } from "zod"
+import { withErrorHandler, ErrorResponses } from "@/features/shared/lib/errorHandler"
 
-export async function GET(request: NextRequest) {
-    try {
+const updateFileSchema = z.object({
+  id: z.string().min(1, "File ID is required"),
+  name: z.string().min(1, "File name is required").optional(),
+  parentPath: z.string().optional()
+})
+
+const deleteFileSchema = z.object({
+  id: z.string().min(1, "File ID is required")
+})
+
+export const GET = withErrorHandler(async (request: NextRequest) => {
         // Check if user has admin privileges
         const adminUser = await requireAdmin()
 
@@ -32,10 +43,7 @@ export async function GET(request: NextRequest) {
             })
             
             if (!file) {
-                return NextResponse.json(
-                    { error: "File not found" },
-                    { status: 404 }
-                )
+                throw ErrorResponses.NOT_FOUND
             }
             
             // Log file access
@@ -131,30 +139,7 @@ export async function GET(request: NextRequest) {
                 totalPages: Math.ceil(totalCount / limit)
             }
         })
-    } catch (error) {
-        console.error('Error fetching files:', error)
-
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
-        
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        )
-    }
-}
+})
 
 async function deleteFileRecursively(fileId: string): Promise<void> {
     // Get the file from database
@@ -206,8 +191,6 @@ async function deleteFileRecursively(fileId: string): Promise<void> {
     if (file.isReal && file.filePath) {
         try {
             if (process.env.NODE_ENV === 'development') {
-                // Delete from local storage in development
-                // filePath in dev is like '/uploads/filename.ext', so we need to remove the leading '/uploads/'
                 const relativePath = file.filePath.startsWith('/uploads/') 
                     ? file.filePath.substring('/uploads/'.length)
                     : file.filePath
@@ -234,20 +217,12 @@ async function deleteFileRecursively(fileId: string): Promise<void> {
     console.log(`Successfully deleted: ${file.name}`)
 }
 
-export async function PUT(request: NextRequest) {
-    try {
+export const PUT = withErrorHandler(async (request: NextRequest) => {
         // Check if user has admin privileges
         await requireAdmin()
 
         const body = await request.json()
-        const { id, name, parentPath } = body
-
-        if (!id) {
-            return NextResponse.json(
-                { error: "File ID is required" },
-                { status: 400 }
-            )
-        }
+        const { id, name, parentPath } = updateFileSchema.parse(body)
 
         // Get the current file
         const currentFile = await prisma.fileSystemItem.findUnique({
@@ -255,18 +230,12 @@ export async function PUT(request: NextRequest) {
         })
 
         if (!currentFile) {
-            return NextResponse.json(
-                { error: "File not found" },
-                { status: 404 }
-            )
+            throw ErrorResponses.NOT_FOUND
         }
 
         // Prevent changing parent path for folders to avoid complexity
         if (currentFile.type === 'FOLDER' && parentPath !== undefined && parentPath !== currentFile.parentPath) {
-            return NextResponse.json(
-                { error: "Cannot change parent path for folders" },
-                { status: 400 }
-            )
+            throw ErrorResponses.VALIDATION_ERROR
         }
 
         // Build update data
@@ -301,10 +270,7 @@ export async function PUT(request: NextRequest) {
             })
 
             if (existingFile) {
-                return NextResponse.json(
-                    { error: "A file with this name already exists in the target location" },
-                    { status: 409 }
-                )
+                throw ErrorResponses.CONFLICT
             }
         }
 
@@ -327,78 +293,19 @@ export async function PUT(request: NextRequest) {
             success: true,
             file: updatedFile
         })
-    } catch (error) {
-        console.error('Error updating file:', error)
+})
 
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
-        
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        )
-    }
-}
-
-export async function DELETE(request: NextRequest) {
-    try {
+export const DELETE = withErrorHandler(async (request: NextRequest) => {
         // Check if user has admin privileges
         await requireAdmin()
 
         const { searchParams } = new URL(request.url)
-        const id = searchParams.get('id')
-
-        if (!id) {
-            return NextResponse.json(
-                { error: "File ID is required" },
-                { status: 400 }
-            )
-        }
+        const rawId = searchParams.get('id')
+        
+        const { id } = deleteFileSchema.parse({ id: rawId })
 
         // Recursively delete the file/folder and all its children
         await deleteFileRecursively(id)
 
         return NextResponse.json({ success: true })
-    } catch (error) {
-        console.error('Error deleting file:', error)
-        
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
-
-        if (error instanceof Error && error.message.includes('not found')) {
-            return NextResponse.json(
-                { error: "File not found" },
-                { status: 404 }
-            )
-        }
-        
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        )
-    }
-}
+})

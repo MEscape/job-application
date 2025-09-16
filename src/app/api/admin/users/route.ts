@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/features/shared/lib"
 import { requireAdmin } from "@/features/auth/lib/adminMiddleware"
 import bcrypt from "bcryptjs"
-import { z } from "zod"
 import {generateAccessCode, generatePassword, signUpSchema} from "@/features/auth/lib";
 import { SessionTracker } from "@/features/auth/lib/sessionTracking"
+import { withErrorHandler, ErrorResponses } from "@/features/shared/lib/errorHandler"
 
-export async function GET() {
-    try {
+export const GET = withErrorHandler(async () => {
         // Check if user has admin privileges
         const adminUser = await requireAdmin()
 
@@ -40,33 +39,9 @@ export async function GET() {
         })
 
         return NextResponse.json(users)
-    } catch (error) {
-        console.error('Error fetching users:', error)
-        
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
+})
 
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        )
-    }
-}
-
-export async function POST(request: NextRequest) {
-    try {
+export const POST = withErrorHandler(async (request: NextRequest) => {
         // Check if user has admin privileges
         const adminUser = await requireAdmin()
 
@@ -89,14 +64,7 @@ export async function POST(request: NextRequest) {
         })
 
         if (existingUser) {
-            return NextResponse.json(
-                { 
-                    error: existingUser.email === validatedData.email 
-                        ? "Email already exists" 
-                        : "Access code already exists" 
-                },
-                { status: 400 }
-            )
+            throw ErrorResponses.VALIDATION_ERROR
         }
 
         const newUser = await prisma.user.create({
@@ -141,38 +109,5 @@ export async function POST(request: NextRequest) {
             ...newUser,
             temporaryPassword: defaultPassword
         }, { status: 201 })
-    } catch (error) {
-        console.error('Error creating user:', error)
-        
-        if (error instanceof z.ZodError) {
-            return NextResponse.json(
-                { 
-                    error: "Validation error", 
-                    details: error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`)
-                },
-                { status: 400 }
-            )
-        }
-        
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
-
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        )
-    }
-}
+})
 

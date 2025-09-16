@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/features/shared/lib'
 import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
 import { SessionTracker } from '@/features/auth/lib/sessionTracking'
+import { withErrorHandler } from '@/features/shared/lib/errorHandler'
 
-export async function GET() {
-    try {
-        const user = await requireAdmin()
+export const GET = withErrorHandler(async () => {
+    const user = await requireAdmin()
         
         // Log admin access
         await SessionTracker.logActivity({
@@ -17,7 +17,6 @@ export async function GET() {
         // Get current date for calculations
         const now = new Date()
         const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
         // Total activities count
         const totalActivities = await prisma.activityLog.count()
@@ -56,32 +55,9 @@ export async function GET() {
             ? Math.round(((todayActivities - yesterdayActivities) / yesterdayActivities) * 100)
             : todayActivities > 0 ? 100 : 0
 
-        return NextResponse.json({
-            totalActivities,
-            activeUsers: activeUsers.length,
-            dailyGrowth
-        })
-    } catch (error) {
-        console.error('Error fetching activity stats:', error)
-        
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
-        
-        return NextResponse.json(
-            { error: 'Failed to fetch activity stats' },
-            { status: 500 }
-        )
-    }
-}
+    return NextResponse.json({
+        totalActivities,
+        activeUsers: activeUsers.length,
+        dailyGrowth
+    })
+})
