@@ -2,9 +2,9 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/features/shared/lib"
 import { requireAdmin } from "@/features/auth/lib/adminMiddleware"
 import { FileType } from "@prisma/client"
+import { withErrorHandler } from "@/features/shared/lib/errorHandler"
 
-export async function GET() {
-    try {
+export const GET = withErrorHandler(async () => {
         // Check if user has admin privileges
         await requireAdmin()
 
@@ -144,27 +144,4 @@ export async function GET() {
             })),
             topDownloaded
         })
-    } catch (error) {
-        console.error('Error fetching file stats:', error)
-        
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
-
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        )
-    }
-}
+})

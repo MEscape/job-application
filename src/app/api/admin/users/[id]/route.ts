@@ -3,6 +3,7 @@ import { prisma } from "@/features/shared/lib"
 import { requireAdmin } from "@/features/auth/lib/adminMiddleware"
 import { z } from "zod"
 import { SessionTracker } from "@/features/auth/lib/sessionTracking"
+import { withErrorHandler, ErrorResponses } from "@/features/shared/lib/errorHandler"
 
 const updateUserSchema = z.object({
     email: z.string().email("Invalid email format").optional(),
@@ -29,8 +30,7 @@ interface RouteParams {
     }>
 }
 
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-    try {
+export const PUT = withErrorHandler(async (request: NextRequest, { params }: RouteParams) => {
         // Check if user has admin privileges
         const adminUser = await requireAdmin()
 
@@ -44,10 +44,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         })
 
         if (!existingUser) {
-            return NextResponse.json(
-                { error: "User not found" },
-                { status: 404 }
-            )
+            throw ErrorResponses.NOT_FOUND
         }
 
         // If email is being updated, check for conflicts
@@ -60,10 +57,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             })
 
             if (emailConflict) {
-                return NextResponse.json(
-                    { error: "Email already exists" },
-                    { status: 400 }
-                )
+                throw ErrorResponses.VALIDATION_ERROR
             }
         }
 
@@ -95,43 +89,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         })
 
         return NextResponse.json(updatedUser)
-    } catch (error) {
-        console.error('Error updating user:', error)
-        
-        if (error instanceof z.ZodError) {
-            return NextResponse.json(
-                { 
-                    error: "Validation error", 
-                    details: error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`)
-                },
-                { status: 400 }
-            )
-        }
-        
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
+})
 
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        )
-    }
-}
-
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
-    try {
+export const DELETE = withErrorHandler(async (_request: NextRequest, { params }: RouteParams) => {
         // Check if user has admin privileges
         const adminUser = await requireAdmin()
 
@@ -143,18 +103,12 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
         })
 
         if (!existingUser) {
-            return NextResponse.json(
-                { error: "User not found" },
-                { status: 404 }
-            )
+            throw ErrorResponses.NOT_FOUND
         }
 
         // Prevent deletion of admin users (optional safety measure)
         if (existingUser.isAdmin) {
-            return NextResponse.json(
-                { error: "Cannot delete admin users" },
-                { status: 403 }
-            )
+            throw ErrorResponses.FORBIDDEN
         }
 
         await prisma.user.delete({
@@ -172,27 +126,4 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
             { message: "User deleted successfully" },
             { status: 200 }
         )
-    } catch (error) {
-        console.error('Error deleting user:', error)
-        
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
-
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        )
-    }
-}
+})

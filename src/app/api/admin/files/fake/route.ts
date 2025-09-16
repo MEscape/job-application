@@ -3,6 +3,7 @@ import { prisma } from '@/features/shared/lib'
 import { z } from 'zod'
 import { FileType } from '@prisma/client'
 import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
+import { withErrorHandler, ErrorResponses } from '@/features/shared/lib/errorHandler'
 
 // Validation schema for fake file creation
 const FakeFileSchema = z.object({
@@ -10,44 +11,6 @@ const FakeFileSchema = z.object({
   parentPath: z.string().min(1, 'Parent path is required'),
   fileType: z.nativeEnum(FileType)
 })
-
-function handleError(error: unknown) {
-  console.error('Fake File Creation API Error:', error)
-
-  if (error instanceof Error) {
-      if (error.message === "Authentication required") {
-          return NextResponse.json(
-              { error: "Authentication required" },
-              { status: 401 }
-          )
-      }
-      if (error.message === "Admin privileges required") {
-          return NextResponse.json(
-              { error: "Admin privileges required" },
-              { status: 403 }
-          )
-      }
-  }
-
-  if (error instanceof z.ZodError) {
-    return NextResponse.json(
-      { error: 'Validation failed', details: error.issues },
-      { status: 400 }
-    )
-  }
-
-  if (error instanceof Error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    )
-  }
-
-  return NextResponse.json(
-    { error: 'Internal server error' },
-    { status: 500 }
-  )
-}
 
 function getExtensionFromType(fileType: FileType): string {
   switch (fileType) {
@@ -70,8 +33,7 @@ function getExtensionFromType(fileType: FileType): string {
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
+export const POST = withErrorHandler(async (request: NextRequest) => {
     // Check authentication and admin privileges
     const user = await requireAdmin()
 
@@ -94,10 +56,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingFile) {
-      return NextResponse.json(
-        { error: `File already exists: ${validatedRequest.fileName}` },
-        { status: 409 }
-      )
+      throw ErrorResponses.CONFLICT
     }
 
     // Create fake file database record
@@ -134,7 +93,4 @@ export async function POST(request: NextRequest) {
         dateModified: newFile.dateModified
       }
     })
-  } catch (error) {
-    return handleError(error)
-  }
-}
+})

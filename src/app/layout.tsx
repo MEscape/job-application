@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import React from "react";
 import {NextAuthProvider, ActivityProvider} from "@/providers";
+import { CookieConsent } from "@/features/shared/components";
 
 const inter = Inter({
     variable: "--font-inter",
@@ -15,22 +16,21 @@ export const metadata: Metadata = {
         template: '%s | Interactive 3D Portfolio',
         default: 'Interactive 3D Portfolio | Marvin Eschenbach'
     },
-    description: 'Ein innovatives Portfolio mit 3D-Technologie und modernen Web-Standards',
-    keywords: ['Portfolio', '3D', 'Next.js', 'Three.js', 'React', 'TypeScript', 'Bewerbung'],
+    description: 'An innovative portfolio with 3D technology and modern web standards',
+    keywords: ['Portfolio', '3D', 'Next.js', 'Three.js', 'React', 'TypeScript', 'Application'],
     authors: [{ name: 'Marvin Eschenbach' }],
     creator: 'Marvin Eschenbach',
-    metadataBase: new URL('http://localhost:3000'),
     openGraph: {
         title: 'Interactive 3D Portfolio',
-        description: 'Ein innovatives Portfolio mit 3D-Technologie',
+        description: 'An innovative portfolio with 3D technology',
         type: 'website',
-        locale: 'de_DE',
+        locale: 'en_US',
         siteName: 'Interactive 3D Portfolio'
     },
     twitter: {
         card: 'summary_large_image',
         title: 'Interactive 3D Portfolio',
-        description: 'Ein innovatives Portfolio mit 3D-Technologie'
+        description: 'An innovative portfolio with 3D technology'
     },
     robots: {
         index: process.env.NODE_ENV === 'production',
@@ -51,6 +51,7 @@ export default function RootLayout({
               >
                   <ActivityProvider>
                       {children}
+                      <CookieConsent />
                   </ActivityProvider>
               </body>
           </html>

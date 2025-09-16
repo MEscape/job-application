@@ -7,6 +7,7 @@ import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
 import { SessionTracker } from '@/features/auth/lib/sessionTracking'
+import { withErrorHandler, ErrorResponses } from '@/features/shared/lib/errorHandler'
 
 // Validation schema for admin file uploads
 const AdminFileUploadSchema = z.object({
@@ -18,44 +19,6 @@ const AdminFileUploadSchema = z.object({
     'Only PDF and video files are allowed'
   )
 })
-
-function handleError(error: unknown) {
-  console.error('Admin File Upload API Error:', error)
-
-  if (error instanceof Error) {
-    if (error.message === "Authentication required") {
-        return NextResponse.json(
-            { error: "Authentication required" },
-            { status: 401 }
-        )
-    }
-    if (error.message === "Admin privileges required") {
-        return NextResponse.json(
-            { error: "Admin privileges required" },
-            { status: 403 }
-        )
-    }
-  }
-
-  if (error instanceof z.ZodError) {
-    return NextResponse.json(
-      { error: 'Validation failed', details: error.issues },
-      { status: 400 }
-    )
-  }
-
-  if (error instanceof Error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    )
-  }
-
-  return NextResponse.json(
-    { error: 'Internal server error' },
-    { status: 500 }
-  )
-}
 
 function getFileTypeFromMime(mimeType: string): FileType {
   if (mimeType === 'application/pdf') {
@@ -83,8 +46,7 @@ function getExtensionFromMime(mimeType: string, fileName: string): string | null
   return null
 }
 
-export async function POST(request: NextRequest) {
-  try {
+export const POST = withErrorHandler(async (request: NextRequest) => {
     // Check authentication and admin privileges
     const user = await requireAdmin()
 
@@ -94,10 +56,7 @@ export async function POST(request: NextRequest) {
     const parentPath = formData.get('parentPath') as string
 
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      )
+      throw ErrorResponses.VALIDATION_ERROR
     }
 
     // Validate the upload request
@@ -168,10 +127,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingFile) {
-      return NextResponse.json(
-        { error: `File already exists: ${validatedRequest.fileName}` },
-        { status: 409 }
-      )
+      throw ErrorResponses.CONFLICT
     }
 
     // Create database record
@@ -215,7 +171,4 @@ export async function POST(request: NextRequest) {
         dateModified: newFile.dateModified
       }
     })
-  } catch (error) {
-    return handleError(error)
-  }
-}
+})

@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/features/shared/lib'
 import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
 import { SessionTracker } from '@/features/auth/lib/sessionTracking'
+import { withErrorHandler } from '@/features/shared/lib/errorHandler'
 
-export async function GET() {
-    try {
-        const user = await requireAdmin()
+export const GET = withErrorHandler(async () => {
+    const user = await requireAdmin()
         
         await SessionTracker.logActivity({
             userId: user.id,
@@ -143,34 +143,11 @@ export async function GET() {
             peakHours[hour].count += 1
         })
 
-        return NextResponse.json({
-            onlineUsers: validUsers,
-            totalOnline: onlineCount,
-            totalOffline: totalUsers - onlineCount,
-            totalUsers,
-            peakHours
-        })
-    } catch (error) {
-        console.error('Error fetching online status:', error)
-        
-        if (error instanceof Error) {
-            if (error.message === "Authentication required") {
-                return NextResponse.json(
-                    { error: "Authentication required" },
-                    { status: 401 }
-                )
-            }
-            if (error.message === "Admin privileges required") {
-                return NextResponse.json(
-                    { error: "Admin privileges required" },
-                    { status: 403 }
-                )
-            }
-        }
-        
-        return NextResponse.json(
-            { error: 'Failed to fetch online status' },
-            { status: 500 }
-        )
-    }
-}
+    return NextResponse.json({
+        onlineUsers: validUsers,
+        totalOnline: onlineCount,
+        totalOffline: totalUsers - onlineCount,
+        totalUsers,
+        peakHours
+    })
+})
