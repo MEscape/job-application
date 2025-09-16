@@ -1,7 +1,6 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { BaseCard } from "@/features/shared/components"
 import { Users, Wifi, WifiOff, Clock } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -61,7 +60,7 @@ export function UserOnlineStatus() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6 }}
             >
-                <div className="bg-gradient-to-br from-slate-900/50 to-slate-800/30 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-6 hover:border-slate-600/60 hover:shadow-2xl transition-all duration-300">
+                <div className="bg-gradient-to-br from-slate-900/50 to-slate-800/30 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-6 hover:border-slate-600/60 hover:shadow-2xl transition-all duration-300 h-full">
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-xl font-semibold text-white flex items-center gap-2">
                             <Users className="w-5 h-5" />
@@ -95,7 +94,7 @@ export function UserOnlineStatus() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.3, delay: index * 0.05 }}
-                                    className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                                    className="flex items-center justify-between p-3 rounded-lg bg-slate-700/30 hover:bg-white/10 transition-colors"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className={`w-3 h-3 rounded-full ${user.isOnline ? 'bg-green-400' : 'bg-slate-400'}`} />
@@ -156,10 +155,10 @@ export function UserOnlineStatus() {
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${percentage}%` }}
                                                 transition={{ duration: 0.8, delay: index * 0.02 }}
-                                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                                                className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
                                             />
                                         </div>
-                                        <span className="text-white text-sm w-10 text-right flex-shrink-0">
+                                        <span className="text-white text-sm w-10 text-right flex-shrink-0 pr-1">
                                             {hour.count}
                                         </span>
                                     </motion.div>

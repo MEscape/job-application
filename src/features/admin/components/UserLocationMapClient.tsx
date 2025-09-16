@@ -62,7 +62,7 @@ function MapClickHandler({ setSelectedUser }: { setSelectedUser: (user: UserLoca
         const handleMapClick = (e: any) => {
             // Only clear selection if clicking on the map itself, not on markers
             if (e.originalEvent && e.originalEvent.target === map.getContainer()) {
-                console.log('Clearing selection - map clicked')
+                // Clear selection when map is clicked
                 setSelectedUser(null)
             }
         }
@@ -114,7 +114,7 @@ export function UserLocationMapClient({
                     }}
                     eventHandlers={{
                         click: (e: LeafletMouseEvent) => {
-                            console.log('Marker clicked:', location.id, location.name)
+                            // Handle marker click
                             e.originalEvent?.stopPropagation()
                             e.originalEvent?.preventDefault()
                             setSelectedUser(location)

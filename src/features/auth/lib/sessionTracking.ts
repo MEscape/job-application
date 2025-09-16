@@ -16,6 +16,18 @@ interface LoginAttemptData {
 export class SessionTracker {
   static async logActivity(data: ActivityData) {
     try {
+      // Filter out admin activity-related logs to avoid recursive logging
+      const isAdminActivityLog = (
+        data.action.includes('VIEW_ACTIVITY') ||
+        data.resource?.includes('/admin/activity') ||
+        data.action === 'VIEW_ACTIVITY_LOGS' ||
+        data.action === 'VIEW_ACTIVITY_STATS'
+      );
+      
+      if (isAdminActivityLog) {
+        return; // Skip logging admin activity views
+      }
+      
       await prisma.activityLog.create({
         data: {
           userId: data.userId,

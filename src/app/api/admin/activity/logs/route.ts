@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/features/shared/lib'
 import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
 import { SessionTracker } from '@/features/auth/lib/sessionTracking'
+import { buildActivityWhereClause } from '@/features/admin/lib/activityFilters'
 
 export async function GET(request: NextRequest) {
     try {
@@ -22,66 +23,11 @@ export async function GET(request: NextRequest) {
 
         const skip = (page - 1) * limit
 
-        // Build where clause based on filters
-        const whereClause: any = {}
-
-        // Search filter
-        if (search) {
-            whereClause.OR = [
-                {
-                    user: {
-                        name: {
-                            contains: search,
-                            mode: 'insensitive'
-                        }
-                    }
-                },
-                {
-                    user: {
-                        email: {
-                            contains: search,
-                            mode: 'insensitive'
-                        }
-                    }
-                },
-                {
-                    action: {
-                        contains: search,
-                        mode: 'insensitive'
-                    }
-                },
-                {
-                    resource: {
-                        contains: search,
-                        mode: 'insensitive'
-                    }
-                }
-            ]
-        }
-
-        // Action type filter
-        if (filter !== 'all') {
-            switch (filter) {
-                case 'login':
-                    whereClause.action = {
-                        contains: 'LOGIN'
-                    }
-                    break
-                case 'admin':
-                    whereClause.action = {
-                        contains: 'ADMIN'
-                    }
-                    break
-                case 'file':
-                    whereClause.action = {
-                        in: ['UPLOAD_FILE', 'DELETE_FILE', 'VIEW_FILE', 'UPDATE_FILE']
-                    }
-                    break
-                case 'navigation':
-                    whereClause.action = 'NAVIGATE'
-                    break
-            }
-        }
+        // Build where clause using shared utility
+        const whereClause = buildActivityWhereClause({
+            search: search || undefined,
+            filter: filter as any
+        })
 
         // Get total count for pagination
         const total = await prisma.activityLog.count({
@@ -93,6 +39,13 @@ export async function GET(request: NextRequest) {
             where: whereClause,
             include: {
                 user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true
+                    }
+                },
+                reader: {
                     select: {
                         id: true,
                         name: true,
@@ -116,7 +69,14 @@ export async function GET(request: NextRequest) {
             action: log.action,
             resource: log.resource || 'N/A',
             timestamp: log.createdAt.toISOString(),
-            success: log.success
+            success: log.success,
+            isRead: log.isRead,
+            readBy: log.reader ? {
+                id: log.reader.id,
+                name: log.reader.name,
+                email: log.reader.email
+            } : null,
+            readAt: log.readAt?.toISOString() || null
         }))
 
         const totalPages = Math.ceil(total / limit)
@@ -131,6 +91,22 @@ export async function GET(request: NextRequest) {
         })
     } catch (error) {
         console.error('Error fetching activity logs:', error)
+
+        if (error instanceof Error) {
+            if (error.message === "Authentication required") {
+                return NextResponse.json(
+                    { error: "Authentication required" },
+                    { status: 401 }
+                )
+            }
+            if (error.message === "Admin privileges required") {
+                return NextResponse.json(
+                    { error: "Admin privileges required" },
+                    { status: 403 }
+                )
+            }
+        }
+
         return NextResponse.json(
             { error: 'Failed to fetch activity logs' },
             { status: 500 }

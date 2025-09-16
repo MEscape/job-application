@@ -22,6 +22,21 @@ const AdminFileUploadSchema = z.object({
 function handleError(error: unknown) {
   console.error('Admin File Upload API Error:', error)
 
+  if (error instanceof Error) {
+    if (error.message === "Authentication required") {
+        return NextResponse.json(
+            { error: "Authentication required" },
+            { status: 401 }
+        )
+    }
+    if (error.message === "Admin privileges required") {
+        return NextResponse.json(
+            { error: "Admin privileges required" },
+            { status: 403 }
+        )
+    }
+  }
+
   if (error instanceof z.ZodError) {
     return NextResponse.json(
       { error: 'Validation failed', details: error.issues },
@@ -100,7 +115,6 @@ export async function POST(request: NextRequest) {
     const extension = getExtensionFromMime(file.type, validatedRequest.fileName)
     const uniqueFileName = `${timestamp}-${validatedRequest.fileName}`
     
-    let fileUrl: string
     let actualBlobUrl: string | undefined
     
     // Handle file storage based on environment
@@ -116,9 +130,6 @@ export async function POST(request: NextRequest) {
       const arrayBuffer = await file.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
       await writeFile(filePath, buffer)
-      
-      // Use local file URL
-      fileUrl = `/uploads/${uniqueFileName}`
     } else {
       // Upload to Vercel Blob in production
       // Ensure we have a valid content type
@@ -139,7 +150,6 @@ export async function POST(request: NextRequest) {
       })
       // Store the actual blob URL for internal use, return secure proxy URL
       actualBlobUrl = blob.url
-      fileUrl = `/api/files/${uniqueFileName}`
     }
 
     // Normalize parent path
