@@ -36,6 +36,22 @@ export async function GET() {
     return NextResponse.json({ paths })
   } catch (error) {
     console.error('Error fetching paths:', error)
+
+    if (error instanceof Error) {
+        if (error.message === "Authentication required") {
+            return NextResponse.json(
+                { error: "Authentication required" },
+                { status: 401 }
+            )
+        }
+        if (error.message === "Admin privileges required") {
+            return NextResponse.json(
+                { error: "Admin privileges required" },
+                { status: 403 }
+            )
+        }
+    }
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

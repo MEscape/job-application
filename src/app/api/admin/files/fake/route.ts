@@ -14,6 +14,21 @@ const FakeFileSchema = z.object({
 function handleError(error: unknown) {
   console.error('Fake File Creation API Error:', error)
 
+  if (error instanceof Error) {
+      if (error.message === "Authentication required") {
+          return NextResponse.json(
+              { error: "Authentication required" },
+              { status: 401 }
+          )
+      }
+      if (error.message === "Admin privileges required") {
+          return NextResponse.json(
+              { error: "Admin privileges required" },
+              { status: 403 }
+          )
+      }
+  }
+
   if (error instanceof z.ZodError) {
     return NextResponse.json(
       { error: 'Validation failed', details: error.issues },

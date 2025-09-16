@@ -2,13 +2,12 @@
 
 import { motion } from "framer-motion"
 import { BaseCard } from "@/features/shared/components"
-import { Activity, Users, Clock, TrendingUp } from "lucide-react"
+import { Activity, Users, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
 
 interface ActivityStatsData {
     totalActivities: number
     activeUsers: number
-    avgSessionTime: string
     dailyGrowth: number
 }
 
@@ -16,7 +15,6 @@ export function ActivityStats() {
     const [stats, setStats] = useState<ActivityStatsData>({
         totalActivities: 0,
         activeUsers: 0,
-        avgSessionTime: "0m",
         dailyGrowth: 0
     })
     const [loading, setLoading] = useState(true)
@@ -57,13 +55,7 @@ export function ActivityStats() {
             color: "from-green-500 to-green-600",
             bgColor: "bg-green-500/10"
         },
-        {
-            title: "Avg Session Time",
-            value: loading ? "..." : stats.avgSessionTime,
-            icon: Clock,
-            color: "from-purple-500 to-purple-600",
-            bgColor: "bg-purple-500/10"
-        },
+
         {
             title: "Daily Growth",
             value: loading ? "..." : `${stats.dailyGrowth > 0 ? '+' : ''}${stats.dailyGrowth}%`,
@@ -74,7 +66,7 @@ export function ActivityStats() {
     ]
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {statCards.map((card, index) => {
                 const Icon = card.icon
                 return (
@@ -95,7 +87,7 @@ export function ActivityStats() {
                                     </p>
                                 </div>
                                 <div className={`p-3 rounded-xl ${card.bgColor}`}>
-                                    <Icon className={`w-6 h-6 bg-gradient-to-r ${card.color} bg-clip-text text-transparent`} />
+                                    <Icon className={`w-6 h-6 text-white`} />
                                 </div>
                             </div>
                         </div>

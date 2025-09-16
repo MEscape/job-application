@@ -159,7 +159,7 @@ export function FileActionsDropdown({ file }: FileActionsDropdownProps) {
 
     const handleView = () => {
         // Redirect to the file viewing page for both real and fake files
-        window.open(`/files/view/${file.id}`, '_blank')
+        window.open(`/api/files/view/${file.id}`, '_blank')
         setIsOpen(false)
     }
 

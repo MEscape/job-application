@@ -33,7 +33,7 @@ export function useActivityTracker(options: ActivityTrackerOptions = {}) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            page: pathname
+            path: pathname
           })
         })
       } catch (error) {

@@ -32,50 +32,7 @@ export async function GET() {
             }
         })
 
-        // Calculate average session time
-        const loginActivities = await prisma.activityLog.findMany({
-            where: {
-                action: 'LOGIN_SUCCESS',
-                createdAt: {
-                    gte: weekAgo
-                }
-            },
-            select: {
-                userId: true,
-                createdAt: true
-            },
-            orderBy: {
-                createdAt: 'asc'
-            }
-        })
-
-        // Group by user and calculate session durations
-        const userSessions: { [userId: string]: Date[] } = {}
-        loginActivities.forEach(activity => {
-            if (!userSessions[activity.userId]) {
-                userSessions[activity.userId] = []
-            }
-            userSessions[activity.userId].push(activity.createdAt)
-        })
-
-        let totalSessionMinutes = 0
-        let sessionCount = 0
-
-        Object.values(userSessions).forEach(sessions => {
-            for (let i = 1; i < sessions.length; i++) {
-                const sessionDuration = sessions[i].getTime() - sessions[i - 1].getTime()
-                const minutes = sessionDuration / (1000 * 60)
-                if (minutes < 480) { // Ignore sessions longer than 8 hours (likely different days)
-                    totalSessionMinutes += minutes
-                    sessionCount++
-                }
-            }
-        })
-
-        const avgSessionMinutes = sessionCount > 0 ? Math.round(totalSessionMinutes / sessionCount) : 0
-        const avgSessionTime = avgSessionMinutes > 60 
-            ? `${Math.floor(avgSessionMinutes / 60)}h ${avgSessionMinutes % 60}m`
-            : `${avgSessionMinutes}m`
+        // Average session time calculation removed
 
         // Daily growth calculation
         const todayActivities = await prisma.activityLog.count({
@@ -102,11 +59,26 @@ export async function GET() {
         return NextResponse.json({
             totalActivities,
             activeUsers: activeUsers.length,
-            avgSessionTime,
             dailyGrowth
         })
     } catch (error) {
         console.error('Error fetching activity stats:', error)
+        
+        if (error instanceof Error) {
+            if (error.message === "Authentication required") {
+                return NextResponse.json(
+                    { error: "Authentication required" },
+                    { status: 401 }
+                )
+            }
+            if (error.message === "Admin privileges required") {
+                return NextResponse.json(
+                    { error: "Admin privileges required" },
+                    { status: 403 }
+                )
+            }
+        }
+        
         return NextResponse.json(
             { error: 'Failed to fetch activity stats' },
             { status: 500 }
