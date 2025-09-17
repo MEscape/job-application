@@ -2,15 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/features/shared/lib'
 import { readFile } from 'fs/promises'
 import path from 'path'
-import { requireAdmin } from '@/features/auth/lib/adminMiddleware'
+import { auth } from '@/features/auth/lib/auth'
 import { withErrorHandler, ErrorResponses } from '@/features/shared/lib/errorHandler'
 
 export const GET = withErrorHandler(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
-    // Require authentication and admin privileges
-    await requireAdmin()
+    // Require authentication
+    const session = await auth()
+    if (!session) {
+      throw ErrorResponses.UNAUTHORIZED
+    }
     
     const { id } = await params
 

@@ -42,11 +42,12 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://*.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com https://cdnjs.cloudflare.com https://*.basemaps.cartocdn.com",
               "font-src 'self' data:",
               "connect-src 'self' https://*.openstreetmap.org https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com",
-              "media-src 'self'",
+              "media-src 'self' blob:",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
               "frame-ancestors 'self'",
+              "frame-src 'self' blob:",
               "upgrade-insecure-requests"
             ].join('; ')
           }

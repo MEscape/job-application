@@ -7,10 +7,22 @@ import { FinderBreadcrumb } from './FinderBreadcrumb';
 import { FinderContent } from './FinderContent';
 import { FinderErrorBoundary } from './FinderErrorBoundary';
 
-export const Finder: React.FC = () => {
+interface FinderProps {
+    initialPath?: string;
+}
+
+export const Finder: React.FC<FinderProps> = ({ initialPath }) => {
     const {
         sidebarVisible,
+        navigateTo,
     } = useFinderStore();
+
+    // Navigate to initial path when component mounts
+    React.useEffect(() => {
+        if (initialPath) {
+            navigateTo(initialPath);
+        }
+    }, [initialPath, navigateTo]);
 
     return (
         <div className="flex flex-col h-full">

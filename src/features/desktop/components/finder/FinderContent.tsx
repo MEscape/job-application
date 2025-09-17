@@ -1,5 +1,8 @@
 import { FinderItem } from "../../constants/finder";
 import { useFinderStore } from "../../hooks/useFinderStore";
+import { useWindowStore } from "../../hooks/useWindowStore";
+import { PDFViewer } from "../pdf/PDFViewer";
+import { VideoViewer } from "../video/VideoViewer";
 import { FileItem } from "./FileItem";
 
 export const FinderContent: React.FC = () => {
@@ -13,10 +16,28 @@ export const FinderContent: React.FC = () => {
         navigateTo
     } = useFinderStore();
 
+    const { addWindow } = useWindowStore();
+
     const handleItemDoubleClick = (item: FinderItem) => {
         if (item.type === 'folder') {
             const newPath = currentPath === '/' ? `/${item.name}` : `${currentPath}/${item.name}`;
             navigateTo(newPath);
+        }
+
+        if (item.name.split('.').pop() === 'pdf') {
+            console.log('Opening PDF:', item.name);
+            addWindow({
+                title: item.name,
+                content: <PDFViewer fileId={item.id} fileName={item.name} />,
+                size: { width: 900, height: 700 }
+            });
+        } else if (['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv'].includes(item.name.split('.').pop()?.toLowerCase() || '')) {
+            console.log('Opening Video:', item.name);
+            addWindow({
+                title: item.name,
+                content: <VideoViewer fileId={item.id} fileName={item.name} />,
+                size: { width: 1000, height: 700 }
+            });
         }
     };
 
