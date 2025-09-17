@@ -16,7 +16,7 @@ export class FileSystemAPI {
             sortOrder
         })
         
-        const url = `${this.baseUrl}${path}?${searchParams.toString()}`
+        const url = `${this.baseUrl}${path === '/' ? '' : path}?${searchParams.toString()}`
         const response = await fetch(url)
 
         if (!response.ok) {

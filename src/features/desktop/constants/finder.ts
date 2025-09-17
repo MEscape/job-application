@@ -86,6 +86,7 @@ export const FILE_TYPE_ICONS: Record<FileType, string> = {
 };
 
 export const getFileIcon = (type: FileType): string => {
+  console.log('getFileIcon', type);
   return FILE_TYPE_ICONS[type] || FILE_TYPE_ICONS.other;
 };
 
@@ -95,23 +96,24 @@ export const getFileColor = (type: FileType): string => {
 
 export const getFileType = (extension: string): FileType => {
   const ext = extension.toLowerCase();
+  console.log('getFileType', ext);
   
-  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(ext)) {
+  if (['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp'].includes(ext)) {
     return 'image';
   }
-  if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'].includes(ext)) {
+  if (['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'].includes(ext)) {
     return 'video';
   }
-  if (['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma'].includes(ext)) {
+  if (['.mp3', '.wav', '.flac', '.aac', '.ogg', '.wma'].includes(ext)) {
     return 'audio';
   }
-  if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) {
+  if (['.zip', '.rar', '.7z', '.tar', '.gz', '.bz2'].includes(ext)) {
     return 'archive';
   }
-  if (['js', 'ts', 'jsx', 'tsx', 'html', 'css', 'scss', 'json', 'xml', 'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs'].includes(ext)) {
+  if (['.js', '.ts', '.jsx', '.tsx', '.html', '.css', '.scss', '.json', '.xml', '.py', '.java', '.cpp', '.c', '.php', '.rb', '.go', '.rs'].includes(ext)) {
     return 'code';
   }
-  if (['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
+  if (['.pdf', '.doc', '.docx', '.txt', '.rtf', '.odt', '.xls', '.xlsx', '.ppt', '.pptx'].includes(ext)) {
     return 'document';
   }
   

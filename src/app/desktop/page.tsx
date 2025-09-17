@@ -7,6 +7,7 @@ import {Window} from "@/features/desktop/components/Window";
 import {Position} from "@/features/desktop/constants/window";
 import {Dock} from "@/features/desktop/components/dock/Dock";
 import { useFinderStore } from "@/features/desktop/hooks/useFinderStore";
+import { Desktop as DesktopComponent } from "@/features/desktop/components/desktop/Desktop";
 
 export default function Desktop() {
     const {
@@ -49,6 +50,8 @@ export default function Desktop() {
 
     return (
         <Background>
+            <DesktopComponent />
+            
             {windows.map((window) => (
                 <Window
                     key={window.id}
