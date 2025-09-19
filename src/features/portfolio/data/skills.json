@@ -1,0 +1,318 @@
+{
+  "categories": [
+    {
+      "id": "frontend",
+      "name": "Frontend Development",
+      "description": "Modern frontend technologies and frameworks for building responsive user interfaces",
+      "icon": "Monitor",
+      "color": "from-blue-500 to-cyan-500",
+      "skills": [
+        {
+          "name": "React",
+          "level": 95,
+          "experience": "4+ years",
+          "description": "Expert in React ecosystem including hooks, context, and performance optimization",
+          "projects": 15,
+          "certifications": ["React Developer Certification"]
+        },
+        {
+          "name": "Next.js",
+          "level": 90,
+          "experience": "3+ years",
+          "description": "Proficient in SSR, SSG, API routes, and deployment optimization",
+          "projects": 12,
+          "certifications": []
+        },
+        {
+          "name": "TypeScript",
+          "level": 88,
+          "experience": "3+ years",
+          "description": "Strong typing, advanced types, and large-scale application architecture",
+          "projects": 18,
+          "certifications": []
+        },
+        {
+          "name": "Vue.js",
+          "level": 85,
+          "experience": "2+ years",
+          "description": "Composition API, Vuex, and component-based architecture",
+          "projects": 8,
+          "certifications": []
+        },
+        {
+          "name": "HTML/CSS",
+          "level": 95,
+          "experience": "5+ years",
+          "description": "Semantic HTML, modern CSS features, animations, and responsive design",
+          "projects": 25,
+          "certifications": ["W3C HTML5 Certification"]
+        },
+        {
+          "name": "Tailwind CSS",
+          "level": 92,
+          "experience": "2+ years",
+          "description": "Utility-first CSS framework, custom configurations, and design systems",
+          "projects": 14,
+          "certifications": []
+        },
+        {
+          "name": "Framer Motion",
+          "level": 85,
+          "experience": "2+ years",
+          "description": "Complex animations, gesture handling, and performance optimization",
+          "projects": 10,
+          "certifications": []
+        }
+      ]
+    },
+    {
+      "id": "backend",
+      "name": "Backend Development",
+      "description": "Server-side technologies, APIs, and database management",
+      "icon": "Server",
+      "color": "from-green-500 to-emerald-500",
+      "skills": [
+        {
+          "name": "Node.js",
+          "level": 90,
+          "experience": "4+ years",
+          "description": "Express.js, middleware, authentication, and scalable API development",
+          "projects": 16,
+          "certifications": ["Node.js Certified Developer"]
+        },
+        {
+          "name": "Python",
+          "level": 85,
+          "experience": "3+ years",
+          "description": "Django, FastAPI, data processing, and machine learning integration",
+          "projects": 12,
+          "certifications": ["Python Institute Certification"]
+        },
+        {
+          "name": "PostgreSQL",
+          "level": 88,
+          "experience": "3+ years",
+          "description": "Complex queries, optimization, indexing, and database design",
+          "projects": 14,
+          "certifications": []
+        },
+        {
+          "name": "MongoDB",
+          "level": 82,
+          "experience": "2+ years",
+          "description": "Document modeling, aggregation pipelines, and performance tuning",
+          "projects": 9,
+          "certifications": ["MongoDB Developer Certification"]
+        },
+        {
+          "name": "Redis",
+          "level": 80,
+          "experience": "2+ years",
+          "description": "Caching strategies, session management, and real-time features",
+          "projects": 8,
+          "certifications": []
+        },
+        {
+          "name": "GraphQL",
+          "level": 75,
+          "experience": "1+ years",
+          "description": "Schema design, resolvers, and Apollo Server implementation",
+          "projects": 5,
+          "certifications": []
+        }
+      ]
+    },
+    {
+      "id": "mobile",
+      "name": "Mobile Development",
+      "description": "Cross-platform and native mobile application development",
+      "icon": "Smartphone",
+      "color": "from-purple-500 to-pink-500",
+      "skills": [
+        {
+          "name": "React Native",
+          "level": 85,
+          "experience": "2+ years",
+          "description": "Cross-platform development, native modules, and performance optimization",
+          "projects": 6,
+          "certifications": []
+        },
+        {
+          "name": "Expo",
+          "level": 80,
+          "experience": "2+ years",
+          "description": "Rapid prototyping, OTA updates, and managed workflow",
+          "projects": 5,
+          "certifications": []
+        },
+        {
+          "name": "Flutter",
+          "level": 70,
+          "experience": "1+ years",
+          "description": "Dart programming, widget composition, and state management",
+          "projects": 3,
+          "certifications": []
+        }
+      ]
+    },
+    {
+      "id": "cloud",
+      "name": "Cloud & DevOps",
+      "description": "Cloud platforms, containerization, and deployment automation",
+      "icon": "Cloud",
+      "color": "from-orange-500 to-red-500",
+      "skills": [
+        {
+          "name": "AWS",
+          "level": 85,
+          "experience": "3+ years",
+          "description": "EC2, S3, Lambda, RDS, CloudFormation, and serverless architecture",
+          "projects": 12,
+          "certifications": ["AWS Solutions Architect Associate"]
+        },
+        {
+          "name": "Docker",
+          "level": 88,
+          "experience": "3+ years",
+          "description": "Containerization, multi-stage builds, and orchestration",
+          "projects": 15,
+          "certifications": ["Docker Certified Associate"]
+        },
+        {
+          "name": "Kubernetes",
+          "level": 75,
+          "experience": "2+ years",
+          "description": "Pod management, services, ingress, and cluster administration",
+          "projects": 6,
+          "certifications": []
+        },
+        {
+          "name": "Vercel",
+          "level": 90,
+          "experience": "2+ years",
+          "description": "Serverless deployment, edge functions, and performance optimization",
+          "projects": 18,
+          "certifications": []
+        },
+        {
+          "name": "GitHub Actions",
+          "level": 85,
+          "experience": "2+ years",
+          "description": "CI/CD pipelines, automated testing, and deployment workflows",
+          "projects": 14,
+          "certifications": []
+        }
+      ]
+    },
+    {
+      "id": "tools",
+      "name": "Development Tools",
+      "description": "Development environment, version control, and productivity tools",
+      "icon": "Wrench",
+      "color": "from-indigo-500 to-purple-500",
+      "skills": [
+        {
+          "name": "Git",
+          "level": 95,
+          "experience": "5+ years",
+          "description": "Advanced branching, merging, rebasing, and collaborative workflows",
+          "projects": 30,
+          "certifications": []
+        },
+        {
+          "name": "VS Code",
+          "level": 95,
+          "experience": "4+ years",
+          "description": "Extensions, debugging, snippets, and workspace optimization",
+          "projects": 30,
+          "certifications": []
+        },
+        {
+          "name": "Figma",
+          "level": 80,
+          "experience": "2+ years",
+          "description": "Design systems, prototyping, and developer handoff",
+          "projects": 12,
+          "certifications": []
+        },
+        {
+          "name": "Postman",
+          "level": 85,
+          "experience": "3+ years",
+          "description": "API testing, automation, documentation, and team collaboration",
+          "projects": 20,
+          "certifications": []
+        }
+      ]
+    },
+    {
+      "id": "emerging",
+      "name": "Emerging Technologies",
+      "description": "Cutting-edge technologies and experimental frameworks",
+      "icon": "Zap",
+      "color": "from-yellow-500 to-orange-500",
+      "skills": [
+        {
+          "name": "AI/Machine Learning",
+          "level": 75,
+          "experience": "2+ years",
+          "description": "TensorFlow, PyTorch, NLP, and ML model integration",
+          "projects": 4,
+          "certifications": ["Google AI Certification"]
+        },
+        {
+          "name": "Blockchain",
+          "level": 70,
+          "experience": "1+ years",
+          "description": "Solidity, Web3.js, smart contracts, and DApp development",
+          "projects": 2,
+          "certifications": []
+        },
+        {
+          "name": "WebAssembly",
+          "level": 65,
+          "experience": "1+ years",
+          "description": "Performance optimization and cross-language compilation",
+          "projects": 2,
+          "certifications": []
+        },
+        {
+          "name": "WebRTC",
+          "level": 75,
+          "experience": "1+ years",
+          "description": "Real-time communication, video/audio streaming, and P2P connections",
+          "projects": 3,
+          "certifications": []
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "totalSkills": 28,
+    "averageLevel": 82,
+    "totalProjects": 150,
+    "totalExperience": "5+ years",
+    "certifications": 8,
+    "specializations": [
+      "Full Stack Development",
+      "React Ecosystem",
+      "Cloud Architecture",
+      "Performance Optimization"
+    ]
+  },
+  "learning": {
+    "currentlyLearning": [
+      "Rust",
+      "Go",
+      "Svelte",
+      "Three.js",
+      "Microservices Architecture"
+    ],
+    "plannedLearning": [
+      "Deno",
+      "WebGPU",
+      "Quantum Computing",
+      "AR/VR Development"
+    ]
+  }
+}
