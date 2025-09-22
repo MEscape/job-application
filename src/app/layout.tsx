@@ -4,6 +4,7 @@ import "./globals.css";
 import React from "react";
 import {NextAuthProvider, ActivityProvider} from "@/providers";
 import { CookieConsent } from "@/features/shared/components";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({
     variable: "--font-inter",
@@ -52,6 +53,7 @@ export default function RootLayout({
                   <ActivityProvider>
                       {children}
                       <CookieConsent />
+                      <SpeedInsights />
                   </ActivityProvider>
               </body>
           </html>

@@ -3,12 +3,10 @@
     "id": "project-1",
     "title": "E-Commerce Platform",
     "description": "A full-stack e-commerce platform built with Next.js, featuring real-time inventory management, secure payment processing, and advanced analytics dashboard.",
-    "longDescription": "This comprehensive e-commerce solution was designed to handle high-traffic scenarios while maintaining optimal performance. The platform includes features like real-time inventory tracking, automated order processing, customer analytics, and a sophisticated admin dashboard. Built with scalability in mind, it can handle thousands of concurrent users and processes payments securely through multiple gateways.",
-    "image": "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=E-Commerce+Platform",
     "images": [
-      "https://via.placeholder.com/800x600/3B82F6/FFFFFF?text=E-Commerce+Dashboard",
-      "https://via.placeholder.com/800x600/3B82F6/FFFFFF?text=E-Commerce+Products",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=ecommerce-3"
+      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwxfHxldmVudHN8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwyfHx3ZWIgZGV2ZWxvcG1lbnR8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1587620931274-4e68f77f4ba0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwzfHxjb21wdXRpbmd8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080"
     ],
     "technologies": [
       "Next.js",
@@ -20,13 +18,11 @@
       "Tailwind CSS",
       "Framer Motion"
     ],
-    "category": "Full Stack",
-    "featured": true,
     "status": "completed",
     "startDate": "2023-08-01",
     "endDate": "2023-12-15",
     "githubUrl": "https://github.com/username/ecommerce-platform",
-    "liveUrl": "https://ecommerce-demo.vercel.app",
+    "galleryUrl": "/portfolio/gallery/project-1",
     "features": [
       "Real-time inventory management",
       "Secure payment processing with Stripe",
@@ -35,28 +31,16 @@
       "Mobile-responsive design",
       "SEO optimization",
       "Admin panel with role-based access"
-    ],
-    "challenges": [
-      "Implementing real-time inventory updates across multiple vendors",
-      "Optimizing database queries for large product catalogs",
-      "Ensuring PCI compliance for payment processing"
-    ],
-    "results": [
-      "40% increase in conversion rates",
-      "99.9% uptime achieved",
-      "Sub-2 second page load times"
     ]
   },
   {
     "id": "project-2",
     "title": "AI-Powered Task Manager",
     "description": "An intelligent task management application that uses machine learning to predict task completion times and optimize workflow efficiency.",
-    "longDescription": "This innovative task management solution leverages artificial intelligence to help users optimize their productivity. The application analyzes user behavior patterns, task complexity, and historical data to provide intelligent suggestions for task prioritization and time allocation. Features include smart scheduling, automated progress tracking, and predictive analytics for project completion.",
-    "image": "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=task-manager",
     "images": [
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=task-manager-1",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=task-manager-2",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=task-manager-3"
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwxfHxtaW5kIHdhcnwxfHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1555949963-aa79dcee981d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwyfHxxdWFsIHdvcmtlcnx8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1523475496153-3d6ccf8ccb63?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwzfHwgdGFsa3x8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080"
     ],
     "technologies": [
       "React",
@@ -68,13 +52,11 @@
       "Socket.io",
       "Material-UI"
     ],
-    "category": "AI/ML",
-    "featured": true,
     "status": "completed",
     "startDate": "2023-03-01",
     "endDate": "2023-07-30",
     "githubUrl": "https://github.com/username/ai-task-manager",
-    "liveUrl": "https://ai-tasks.vercel.app",
+    "galleryUrl": "/portfolio/gallery/project-2",
     "features": [
       "AI-powered task prioritization",
       "Predictive time estimation",
@@ -83,28 +65,16 @@
       "Advanced analytics and insights",
       "Cross-platform synchronization",
       "Customizable workflows"
-    ],
-    "challenges": [
-      "Training ML models with limited initial data",
-      "Balancing prediction accuracy with performance",
-      "Creating intuitive AI-driven user interfaces"
-    ],
-    "results": [
-      "35% improvement in task completion rates",
-      "50% reduction in project overruns",
-      "92% user satisfaction score"
     ]
   },
   {
     "id": "project-3",
     "title": "Real-Time Chat Application",
     "description": "A modern chat application with real-time messaging, file sharing, video calls, and advanced moderation features for communities.",
-    "longDescription": "This comprehensive communication platform was built to facilitate seamless real-time interactions for teams and communities. The application supports text messaging, file sharing, voice and video calls, screen sharing, and advanced moderation tools. Built with scalability in mind, it can handle thousands of concurrent users across multiple channels and includes features like message encryption, user presence indicators, and customizable themes.",
-    "image": "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=chat-app",
     "images": [
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=chat-1",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=chat-2",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=chat-3"
+      "https://images.unsplash.com/photo-1587620931274-4e68f77f4ba0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwxMXxjaGF0fHx8fHx8fDE2OTI0OTgzNTA&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1564866657315-3243809bb32a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwyfHxyZWFsIHRpbWUgfHx8fHx8fDE2OTI0OTgzNTA&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwzfHxsYXRlbGl0ZSBjaGF0fHx8fHx8fDE2OTI0OTgzNTA&ixlib=rb-4.0.3&q=80&w=1080"
     ],
     "technologies": [
       "React",
@@ -116,13 +86,11 @@
       "AWS S3",
       "Styled Components"
     ],
-    "category": "Real-time",
-    "featured": false,
     "status": "completed",
     "startDate": "2023-01-15",
     "endDate": "2023-04-20",
     "githubUrl": "https://github.com/username/realtime-chat",
-    "liveUrl": "https://chat-demo.vercel.app",
+    "galleryUrl": "/portfolio/gallery/project-3",
     "features": [
       "Real-time messaging with Socket.io",
       "Video and voice calls with WebRTC",
@@ -131,28 +99,16 @@
       "User presence and typing indicators",
       "Channel management and moderation",
       "Custom themes and personalization"
-    ],
-    "challenges": [
-      "Implementing WebRTC for cross-browser compatibility",
-      "Optimizing real-time performance for large groups",
-      "Ensuring message delivery reliability"
-    ],
-    "results": [
-      "Support for 10,000+ concurrent users",
-      "99.95% message delivery rate",
-      "Sub-100ms message latency"
     ]
   },
   {
     "id": "project-4",
     "title": "Data Visualization Dashboard",
     "description": "An interactive dashboard for visualizing complex datasets with real-time updates, custom charts, and advanced filtering capabilities.",
-    "longDescription": "This powerful data visualization platform enables users to create interactive dashboards from complex datasets. The application supports multiple data sources, real-time data streaming, and offers a wide variety of chart types and visualization options. Users can create custom dashboards, set up automated reports, and share insights with stakeholders through interactive presentations.",
-    "image": "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=dashboard",
     "images": [
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=dashboard-1",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=dashboard-2",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=dashboard-3"
+      "https://images.unsplash.com/photo-1593642634367-d91a135587b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwxfHxrZXlib2FyZHx8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1537432376769-00a8c64c4a84?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwyfHxmYXN0ZWFwaVx8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1518779578993-ec3579fee39e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwzfHxtYXB8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080"
     ],
     "technologies": [
       "Vue.js",
@@ -164,13 +120,11 @@
       "Docker",
       "Vuetify"
     ],
-    "category": "Data Visualization",
-    "featured": false,
     "status": "completed",
     "startDate": "2022-10-01",
     "endDate": "2023-02-28",
     "githubUrl": "https://github.com/username/data-dashboard",
-    "liveUrl": "https://data-viz-demo.vercel.app",
+    "galleryUrl": "/portfolio/gallery/project-4",
     "features": [
       "Interactive charts with D3.js",
       "Real-time data streaming",
@@ -179,28 +133,16 @@
       "Export to multiple formats",
       "Collaborative sharing",
       "Automated report generation"
-    ],
-    "challenges": [
-      "Handling large datasets efficiently",
-      "Creating responsive visualizations",
-      "Implementing real-time data updates"
-    ],
-    "results": [
-      "Processing 1M+ data points in real-time",
-      "75% reduction in report generation time",
-      "Improved decision-making speed by 60%"
     ]
   },
   {
     "id": "project-5",
     "title": "Mobile Fitness Tracker",
     "description": "A cross-platform mobile application for fitness tracking with workout plans, nutrition monitoring, and social features.",
-    "longDescription": "This comprehensive fitness application helps users track their health and fitness journey through personalized workout plans, nutrition monitoring, and social engagement features. The app includes GPS tracking for outdoor activities, integration with wearable devices, progress analytics, and a community platform where users can share achievements and motivate each other.",
-    "image": "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=fitness-app",
     "images": [
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=fitness-1",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=fitness-2",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=fitness-3"
+      "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwxfHxmZXRjaCBtb2JpbGV8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1523475496153-3d6ccf8ccb63?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwyfHxtb2JpbGUgdHJhY2tlcnx8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwzfHxtcmVsaWFibGUgc2luZ3xlbnwwfHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080"
     ],
     "technologies": [
       "React Native",
@@ -212,13 +154,11 @@
       "Google Fit",
       "Stripe"
     ],
-    "category": "Mobile",
-    "featured": true,
     "status": "in-progress",
     "startDate": "2023-09-01",
     "endDate": null,
     "githubUrl": "https://github.com/username/fitness-tracker",
-    "liveUrl": null,
+    "galleryUrl": "/portfolio/gallery/project-5",
     "features": [
       "Personalized workout plans",
       "Nutrition tracking and meal planning",
@@ -227,28 +167,16 @@
       "Progress analytics and insights",
       "Social features and challenges",
       "Premium subscription model"
-    ],
-    "challenges": [
-      "Integrating with multiple health platforms",
-      "Optimizing battery usage for GPS tracking",
-      "Creating engaging social features"
-    ],
-    "results": [
-      "Currently in beta testing",
-      "500+ beta users registered",
-      "4.8/5 average rating in beta"
     ]
   },
   {
     "id": "project-6",
     "title": "Blockchain Voting System",
     "description": "A secure and transparent voting system built on blockchain technology to ensure election integrity and voter privacy.",
-    "longDescription": "This innovative voting platform leverages blockchain technology to create a transparent, secure, and tamper-proof voting system. The application ensures voter anonymity while maintaining complete transparency in the voting process. Features include smart contract-based vote counting, real-time results tracking, and comprehensive audit trails for election verification.",
-    "image": "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=blockchain-voting",
     "images": [
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=voting-1",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=voting-2",
-      "https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=voting-3"
+      "https://images.unsplash.com/photo-1573164574396-6e3c1f6bafa5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwxfHxibG9ja2NoYWlufHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1603575448443-3f826cdc34f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwyfHxinZlfHx8fHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080",
+      "https://images.unsplash.com/photo-1600075525442-9598401fc6a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc1MjR8MHwxfGFsbHwzfHxinZxl2bG9ja2NoYWluJTIwdGVjaHxlbnwwfHx8fHwxNjkyNDk4MzUw&ixlib=rb-4.0.3&q=80&w=1080"
     ],
     "technologies": [
       "Solidity",
@@ -260,13 +188,11 @@
       "IPFS",
       "Node.js"
     ],
-    "category": "Blockchain",
-    "featured": false,
     "status": "completed",
     "startDate": "2022-06-01",
     "endDate": "2022-11-30",
     "githubUrl": "https://github.com/username/blockchain-voting",
-    "liveUrl": "https://blockchain-vote-demo.vercel.app",
+    "galleryUrl": "/portfolio/gallery/project-6",
     "features": [
       "Smart contract-based voting",
       "Voter identity verification",
@@ -275,16 +201,6 @@
       "Decentralized result storage",
       "Mobile-friendly interface",
       "Multi-language support"
-    ],
-    "challenges": [
-      "Ensuring voter privacy on public blockchain",
-      "Optimizing gas costs for large elections",
-      "Creating user-friendly Web3 interfaces"
-    ],
-    "results": [
-      "Successfully tested with 1000+ voters",
-      "Zero security vulnerabilities found",
-      "100% vote accuracy maintained"
     ]
   }
 ]

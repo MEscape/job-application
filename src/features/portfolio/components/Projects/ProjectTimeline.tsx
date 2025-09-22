@@ -1,10 +1,11 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { ProjectCard } from './ProjectCard';
 import { ProjectFilter } from './ProjectFilter';
 import { TimelineHeader } from './TimelineHeader';
+import { Pagination } from '../shared/Pagination';
 
 interface Project {
   id: string;
@@ -16,7 +17,7 @@ interface Project {
   startDate: string;
   endDate?: string;
   githubUrl?: string;
-  liveUrl?: string;
+  galleryUrl?: string;
   image?: string;
 }
 
@@ -32,9 +33,12 @@ interface FilterOptions {
   dateRange: 'all' | 'recent' | 'older';
 }
 
+const PROJECTS_PER_PAGE = 5;
+
 export function ProjectTimeline({ projects, className = '' }: ProjectTimelineProps) {
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<FilterOptions>({
     technologies: [],
     status: [],
@@ -86,6 +90,12 @@ export function ProjectTimeline({ projects, className = '' }: ProjectTimelinePro
     });
   }, [projects, filters]);
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredAndSortedProjects.length / PROJECTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * PROJECTS_PER_PAGE;
+  const endIndex = startIndex + PROJECTS_PER_PAGE;
+  const currentProjects = filteredAndSortedProjects.slice(startIndex, endIndex);
+
   // Get all available technologies for filter
   const availableTechnologies = useMemo(() => {
     const allTechs = projects.flatMap(p => p.technologies);
@@ -104,92 +114,24 @@ export function ProjectTimeline({ projects, className = '' }: ProjectTimelinePro
     });
   };
 
-  return (
-    <section className={`relative min-h-screen py-20 overflow-hidden bg-black ${className}`} id='projects'>
-      {/* Deep Atmospheric Background */}
-      <div className="absolute inset-0">
-        {/* Base Dark Gradients - More Visible */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: `
-              radial-gradient(ellipse 120% 80% at 20% 10%, rgba(25, 25, 112, 0.08) 0%, transparent 50%),
-              radial-gradient(ellipse 100% 60% at 80% 90%, rgba(139, 0, 139, 0.12) 0%, transparent 50%),
-              radial-gradient(ellipse 150% 100% at 50% 50%, rgba(75, 0, 130, 0.15) 0%, transparent 60%)
-            `
-          }}
-        />
-        
-        {/* Primary Atmospheric Orb */}
-        <motion.div
-          className="absolute rounded-full"
-          style={{
-            background: `radial-gradient(circle, 
-              rgba(138, 43, 226, 0.20) 0%, 
-              rgba(75, 0, 130, 0.24) 30%, 
-              rgba(25, 25, 112, 0.18) 60%, 
-              transparent 80%)`,
-            width: '800px',
-            height: '600px',
-            left: '30%',
-            top: '20%',
-            transform: 'translate(-50%, -50%)',
-            filter: 'blur(80px)'
-          }}
-          animate={{
-            x: [0, 50, -30, 0],
-            y: [0, -20, 40, 0],
-            scale: [1, 1.1, 0.95, 1],
-            opacity: [0.6, 0.8, 0.4, 0.6]
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        
-        {/* Secondary Atmospheric Orb */}
-        <motion.div
-          className="absolute rounded-full"
-          style={{
-            background: `radial-gradient(circle, 
-              rgba(139, 0, 139, 0.16) 0%, 
-              rgba(72, 61, 139, 0.10) 40%, 
-              transparent 70%)`,
-            width: '600px',
-            height: '500px',
-            right: '20%',
-            bottom: '30%',
-            transform: 'translate(50%, 50%)',
-            filter: 'blur(60px)'
-          }}
-          animate={{
-            x: [0, -40, 60, 0],
-            y: [0, 30, -50, 0],
-            scale: [0.9, 1.05, 0.85, 0.9],
-            opacity: [0.5, 0.7, 0.3, 0.5]
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 5
-          }}
-        />
-        
-        {/* Deep Shadows and Vignette */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: `
-              radial-gradient(ellipse 60% 40% at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.3) 70%, rgba(0, 0, 0, 0.7) 100%),
-              linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%)
-            `
-          }}
-        />
-      </div>
+  // Reset to page 1 when filters change
+  const handleFiltersChange = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+  };
 
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of projects section for better UX
+    const projectsElement = document.getElementById('projects');
+    if (projectsElement) {
+      projectsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  return (
+    <section className={`relative min-h-screen py-20 overflow-hidden ${className}`} id='projects'>
       <div className="relative max-w-7xl mx-auto px-6">
         {/* Enhanced Header */}
         <motion.div
@@ -212,21 +154,36 @@ export function ProjectTimeline({ projects, className = '' }: ProjectTimelinePro
         >
           <ProjectFilter
             filters={filters}
-            onFiltersChange={setFilters}
+            onFiltersChange={handleFiltersChange}
             availableTechnologies={availableTechnologies}
             isOpen={isFilterOpen}
             onToggle={() => setIsFilterOpen(!isFilterOpen)}
           />
         </motion.div>
 
+        {/* Results Info */}
+        {filteredAndSortedProjects.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="mb-8 text-center"
+          >
+            <p className="text-slate-400 text-sm">
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredAndSortedProjects.length)} of {filteredAndSortedProjects.length} projects
+              {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
+            </p>
+          </motion.div>
+        )}
+
         {/* Projects Grid with Enhanced Layout */}
         <div className="relative mt-16 min-h-[500px]">
           {/* Projects */}
           <AnimatePresence mode="popLayout">
             <div className="space-y-20">
-              {filteredAndSortedProjects.map((project, index) => (
+              {currentProjects.map((project, index) => (
                 <ProjectCard
-                  key={project.id}
+                  key={`${project.id}-${currentPage}`}
                   project={project}
                   index={index}
                   isExpanded={expandedProjects.has(project.id)}
@@ -272,6 +229,15 @@ export function ProjectTimeline({ projects, className = '' }: ProjectTimelinePro
                 Try adjusting your filters or search terms to see more results.
               </p>
             </motion.div>
+          )}
+
+          {/* Pagination */}
+          {filteredAndSortedProjects.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           )}
         </div>
       </div>

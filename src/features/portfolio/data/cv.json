@@ -1,0 +1,62 @@
+{
+  "education": [
+    {
+      "degree": "Apprenticeship in Application Development",
+      "institution": "EDAG Engineering, Fulda",
+      "type": "Vocational Training",
+      "start_date": "2023-09",
+      "end_date": "2026-01",
+      "notes": "Accelerated program, current GPA: 1.0"
+    },
+    {
+      "degree": "Advanced Technical Diploma (Fachhochschulreife)",
+      "institution": "FOS/BOS Bad Neustadt a. d. Saale, Technology branch",
+      "start_date": "2021-09",
+      "end_date": "2023-07",
+      "grade": "2.5",
+      "notes": "Strong performance in Math, Computer Science, and Physics; Developed a vocabulary trainer project in C++ and received special recognition from Bad Neustadt for outstanding work"
+    },
+    {
+      "degree": "Realschule",
+      "institution": "Werner von Siemens Realschule",
+      "start_date": "2015-09",
+      "end_date": "2021-07",
+      "notes": "Selected for Talent Class in Technology and French; DELF B1 French exam passed"
+    },
+    {
+      "degree": "Primary School",
+      "institution": "Irena Sendler School Hohenroth",
+      "start_date": "2010-09",
+      "end_date": "2015-07"
+    }
+  ],
+  "experience": [
+    {
+      "position": "Intern",
+      "company": "PIA",
+      "duration": "2022-05",
+      "description": "One-week internship, gained initial professional experience"
+    },
+    {
+      "position": "Trainee / Junior Developer",
+      "company": "EDAG Engineering",
+      "duration": "2023-09 - Present",
+      "description": "Worked on customer projects, gaining practical experience in software development and project collaboration"
+    },
+    {
+      "position": "Participant",
+      "company": "Hackathon Fulda",
+      "duration": "2024-10",
+      "description": "Achieved 2nd place in code quality competition"
+    }
+  ],
+  "summary": {
+    "totalExperienceYears": 5,
+    "strengths": [
+      "Full Stack Development",
+      "React Ecosystem",
+      "Cloud & DevOps",
+      "Performance Optimization"
+    ]
+  }
+}

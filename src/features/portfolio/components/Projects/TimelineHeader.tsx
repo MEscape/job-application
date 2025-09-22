@@ -14,7 +14,7 @@ interface Project {
   startDate: string;
   endDate?: string;
   githubUrl?: string;
-  liveUrl?: string;
+  galleryUrl?: string;
   image?: string;
 }
 
@@ -125,7 +125,7 @@ export function TimelineHeader({ projects, filteredCount }: TimelineHeaderProps)
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <motion.div 
-            className="text-5xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
+            className="text-5xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"
             initial={{ scale: 0 }}
             animate={statsInView ? { scale: 1 } : { scale: 0 }}
             transition={{ type: "spring", stiffness: 200, delay: 0.4 }}
@@ -144,7 +144,7 @@ export function TimelineHeader({ projects, filteredCount }: TimelineHeaderProps)
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <motion.div 
-            className="text-5xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent"
+            className="text-5xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"
             initial={{ scale: 0 }}
             animate={statsInView ? { scale: 1 } : { scale: 0 }}
             transition={{ type: "spring", stiffness: 200, delay: 0.5 }}
@@ -163,7 +163,7 @@ export function TimelineHeader({ projects, filteredCount }: TimelineHeaderProps)
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <motion.div 
-            className="text-5xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent"
+            className="text-5xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"
             initial={{ scale: 0 }}
             animate={statsInView ? { scale: 1 } : { scale: 0 }}
             transition={{ type: "spring", stiffness: 200, delay: 0.6 }}

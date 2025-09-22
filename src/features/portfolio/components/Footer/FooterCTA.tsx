@@ -6,7 +6,6 @@ import { useRef } from 'react';
 import { GlassMorphism } from '../shared/GlassMorphism';
 import { ScrollReveal } from '../shared/ScrollReveal';
 import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
-import { ContactButton } from './ContactButton';
 
 interface FooterCTAProps {
   className?: string;
@@ -93,7 +92,6 @@ export function FooterCTA({ className = '', onContactClick }: FooterCTAProps) {
                 Transform your vision into reality. I specialize in crafting exceptional digital experiences 
                 that push boundaries and exceed expectations.
               </p>
-              <ContactButton onClick={onContactClick} />
             </motion.div>
           </ScrollReveal>
 
@@ -107,7 +105,7 @@ export function FooterCTA({ className = '', onContactClick }: FooterCTAProps) {
                     <GlassMorphism
                       variant="dark"
                       intensity="high"
-                      className="p-8 group cursor-pointer"
+                      className="p-8 group cursor-pointer h-full"
                       whileHover={{
                         scale: 1.05,
                         y: -8,

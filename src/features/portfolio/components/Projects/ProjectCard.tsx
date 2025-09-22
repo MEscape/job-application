@@ -1,8 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Github, ExternalLink, Calendar, Clock, Star } from 'lucide-react';
+import { Github, Calendar, Clock, Star, Image } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { GlassMorphism } from '../shared/GlassMorphism';
 import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
 
@@ -16,7 +17,7 @@ interface Project {
   startDate: string;
   endDate?: string;
   githubUrl?: string;
-  liveUrl?: string;
+  galleryUrl?: string;
   image?: string;
 }
 
@@ -48,6 +49,7 @@ const statusConfig = {
 export function ProjectCard({ project, index, isExpanded, onToggleExpand }: ProjectCardProps) {
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
   const [isHovered, setIsHovered] = useState(false);
+  const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null!);
   const config = statusConfig[project.status];
   const StatusIcon = config.icon;
@@ -257,16 +259,17 @@ export function ProjectCard({ project, index, isExpanded, onToggleExpand }: Proj
                   <Github size={16} className="text-slate-300" />
                 </a>
               )}
-              {project.liveUrl && (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              {project.galleryUrl && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(project.galleryUrl!);
+                  }}
                   className="p-2 rounded-lg bg-slate-800/60 hover:bg-slate-700/60 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
+                  title="View Gallery"
                 >
-                  <ExternalLink size={16} className="text-slate-300" />
-                </a>
+                  <Image size={16} className="text-slate-300" />
+                </button>
               )}
             </div>
           </div>
