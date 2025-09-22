@@ -3,3 +3,5 @@ monitor has small space between overlay iframe and model
 error boundary home and desktop
 update api tracking
 cookie nur auf / (home)
+i18n
+portfolio in safari

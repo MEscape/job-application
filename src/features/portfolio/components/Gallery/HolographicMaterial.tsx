@@ -1,25 +1,21 @@
-import { useFrame } from "@react-three/fiber";
-import React, { useMemo, useRef } from "react";
+import { useFrame, extend } from "@react-three/fiber";
+import React, { useRef } from "react";
+import { shaderMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
-interface HolographicMaterialProps {
-  texture: THREE.Texture;
-  opacity?: number;
-  glow?: number;
-  isActive?: boolean;
-  hologramStrength?: number;
-}
-
-export const HolographicMaterial: React.FC<HolographicMaterialProps> = ({
-                                                                          texture,
-                                                                          opacity = 1,
-                                                                          glow = 1,
-                                                                          isActive = false,
-                                                                          hologramStrength = 1
-                                                                        }) => {
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
-
-  const vertexShader = `
+// Create the shader material using drei's shaderMaterial
+const HolographicShaderMaterial = shaderMaterial(
+    // Uniforms
+    {
+      uTexture: new THREE.Texture(),
+      uTime: 0,
+      uOpacity: 1,
+      uGlow: 1,
+      uIsActive: false,
+      uHologramStrength: 1,
+    },
+    // Vertex shader
+    `
     varying vec2 vUv;
     varying vec3 vNormal;
     varying vec3 vPosition;
@@ -33,9 +29,9 @@ export const HolographicMaterial: React.FC<HolographicMaterialProps> = ({
       vViewPosition = -mvPosition.xyz;
       gl_Position = projectionMatrix * mvPosition;
     }
-  `;
-
-  const fragmentShader = `
+  `,
+    // Fragment shader
+    `
     uniform sampler2D uTexture;
     uniform float uTime;
     uniform float uOpacity;
@@ -116,33 +112,44 @@ export const HolographicMaterial: React.FC<HolographicMaterialProps> = ({
       
       gl_FragColor = vec4(finalColor, alpha);
     }
-  `;
+  `
+);
 
-  const uniforms = useMemo(() => ({
-    uTexture: { value: texture },
-    uTime: { value: 0 },
-    uOpacity: { value: opacity },
-    uGlow: { value: glow },
-    uIsActive: { value: isActive },
-    uHologramStrength: { value: hologramStrength }
-  }), [texture]);
+// Extend R3F with our custom material
+extend({ HolographicShaderMaterial });
 
+interface HolographicMaterialProps {
+  texture: THREE.Texture;
+  opacity?: number;
+  glow?: number;
+  isActive?: boolean;
+  hologramStrength?: number;
+}
+
+export const HolographicMaterial: React.FC<HolographicMaterialProps> = ({
+                                                                          texture,
+                                                                          opacity = 1,
+                                                                          glow = 1,
+                                                                          isActive = false,
+                                                                          hologramStrength = 1
+                                                                        }) => {
+  const materialRef = useRef<any>(null);
+
+  // Only update time in useFrame, let React handle the rest through props
   useFrame((state) => {
     if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
-      materialRef.current.uniforms.uOpacity.value = opacity;
-      materialRef.current.uniforms.uGlow.value = glow;
-      materialRef.current.uniforms.uIsActive.value = isActive;
-      materialRef.current.uniforms.uHologramStrength.value = hologramStrength;
+      materialRef.current.uTime = state.clock.elapsedTime;
     }
   });
 
   return (
-      <shaderMaterial
+      <holographicShaderMaterial
           ref={materialRef}
-          uniforms={uniforms}
-          vertexShader={vertexShader}
-          fragmentShader={fragmentShader}
+          uTexture={texture}
+          uOpacity={opacity}
+          uGlow={glow}
+          uIsActive={isActive}
+          uHologramStrength={hologramStrength}
           transparent
           side={THREE.DoubleSide}
       />

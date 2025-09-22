@@ -48,7 +48,7 @@ export function ProjectTimeline({ projects, className = '' }: ProjectTimelinePro
   
   // Filter and sort projects
   const filteredAndSortedProjects = useMemo(() => {
-    let filtered = projects.filter(project => {
+    const filtered = projects.filter(project => {
       // Search filter
       if (filters.searchTerm) {
         const searchLower = filters.searchTerm.toLowerCase();

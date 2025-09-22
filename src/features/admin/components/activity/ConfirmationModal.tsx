@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { AlertTriangle, X, Check } from "lucide-react"
+import { AlertTriangle, Check } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
 

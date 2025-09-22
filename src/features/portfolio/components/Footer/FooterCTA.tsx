@@ -54,7 +54,7 @@ const contactInfo = [
   }
 ];
 
-export function FooterCTA({ className = '', onContactClick }: FooterCTAProps) {
+export function FooterCTA({ className = '' }: FooterCTAProps) {
   const footerRef = useRef<HTMLElement>(null!);
   
   const { isIntersecting } = useIntersectionObserver(footerRef, {
@@ -80,7 +80,7 @@ export function FooterCTA({ className = '', onContactClick }: FooterCTAProps) {
             <motion.div className="mb-24">
               <h2 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
                 <span className="bg-gradient-to-r from-white via-blue-50 to-white bg-clip-text text-transparent">
-                  Let's Create
+                  Let&#39;s Create
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -169,7 +169,7 @@ export function FooterCTA({ className = '', onContactClick }: FooterCTAProps) {
                   ease: "easeInOut"
                 }}
               >
-                Let's Connect
+                Let&#39;s Connect
               </motion.h3>
               <div className="flex justify-center gap-6">
                 {socialLinks.map((social, index) => {

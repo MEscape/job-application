@@ -22,7 +22,6 @@ export function FileActionsDropdown({ file }: FileActionsDropdownProps) {
     
     const {
         deleteFile,
-        updateFile,
         refreshFiles,
         isDeleting,
         isUpdating

@@ -41,7 +41,6 @@ export function EditFileModal({ isOpen, file, onClose, onSuccess }: EditFileModa
     })
     const [nameOnly, setNameOnly] = useState(initialNameOnly)
     const [errors, setErrors] = useState<Record<string, string>>({})
-    const [hasChildren, setHasChildren] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)
     
     const { updateFile, isUpdating, files } = useFileManagementStore()
@@ -57,16 +56,6 @@ export function EditFileModal({ isOpen, file, onClose, onSuccess }: EditFileModa
             })
             setNameOnly(newNameOnly)
             setErrors({})
-            
-            // Check if this folder has children
-            if (file.type === 'FOLDER') {
-                // For folders, we need to construct the path from parentPath and name
-                const folderPath = file.parentPath ? `${file.parentPath}/${file.name}` : `/${file.name}`
-                const children = files.filter(f => f.parentPath === folderPath)
-                setHasChildren(children.length > 0)
-            } else {
-                setHasChildren(false)
-            }
         }
     }, [isOpen, file, files])
 
@@ -113,11 +102,6 @@ export function EditFileModal({ isOpen, file, onClose, onSuccess }: EditFileModa
             setErrors(prev => ({ ...prev, [field]: '' }))
         }
     }
-
-    const fileTypes = [
-        'PDF', 'DOCUMENT', 'PRESENTATION', 'SPREADSHEET', 
-        'IMAGE', 'VIDEO', 'AUDIO', 'ARCHIVE', 'FOLDER', 'OTHER'
-    ]
 
     const isFolder = formData.type === 'FOLDER'
 
