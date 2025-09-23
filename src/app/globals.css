@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Custom gradient utilities */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Portfolio specific styles */
+body {
+  background-color: #000;
+  color: #fff;
+}
+
 /* Scrollbar styles for admin section only */
 body:has([data-admin-section]) {
   scrollbar-width: thin !important;
@@ -61,4 +72,40 @@ body:has([data-admin-section])::-webkit-scrollbar-corner {
 [data-admin-section]::-webkit-scrollbar-corner,
 [data-admin-section] *::-webkit-scrollbar-corner {
   background: rgb(30 41 59 / 0.5) !important;
+}
+
+/* Portfolio section scrollbars */
+[data-portfolio-section],
+[data-portfolio-section] * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* thumb / track */
+}
+
+/* Webkit browsers */
+[data-portfolio-section]::-webkit-scrollbar,
+[data-portfolio-section] *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+[data-portfolio-section]::-webkit-scrollbar-track,
+[data-portfolio-section] *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[data-portfolio-section]::-webkit-scrollbar-thumb,
+[data-portfolio-section] *::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  border: 2px solid transparent; /* optional spacing around thumb */
+}
+
+[data-portfolio-section]::-webkit-scrollbar-thumb:hover,
+[data-portfolio-section] *::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+[data-portfolio-section]::-webkit-scrollbar-corner,
+[data-portfolio-section] *::-webkit-scrollbar-corner {
+  background: transparent;
 }

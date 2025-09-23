@@ -208,7 +208,6 @@ export function ActivityLogs() {
                     })
 
                     if (response.ok) {
-                        const result = await response.json()
                         // If we deleted items and current page is now empty, go to previous page
                         const newPage = data.logs.length <= logIds.length && currentPage > 1 ? currentPage - 1 : currentPage
                         await fetchLogs(newPage, searchTerm, filter)
@@ -263,7 +262,6 @@ export function ActivityLogs() {
                     })
 
                     if (response.ok) {
-                        const result = await response.json()
                         // Reset to page 1 after bulk delete to ensure we see remaining data
                         setCurrentPage(1)
                         await fetchLogs(1, searchTerm, filter)

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Cookie, Shield } from "lucide-react"
 import { createPortal } from "react-dom"
+import { usePathname } from "next/navigation"
 import { 
   getCookieConsent, 
   setCookieConsent, 
@@ -22,6 +23,10 @@ export function CookieConsent({
   const [isVisible, setIsVisible] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [hasConsent, setHasConsent] = useState<boolean | null>(null)
+  const pathname = usePathname()
+
+  // Check if current route is a home route
+  const isHomeRoute = pathname === '/';
 
   useEffect(() => {
     setMounted(true)
@@ -87,8 +92,8 @@ export function CookieConsent({
     onReject?.()
   }
 
-  // Don't render if not mounted or if user has already consented
-  if (!mounted || hasConsent === true) return null
+  // Don't render if not mounted, if user has already consented, or if not on home routes
+  if (!mounted || hasConsent === true || !isHomeRoute) return null
 
   // Check if we're in an iframe (monitor overlay)
   const isInIframe = typeof window !== 'undefined' && window.self !== window.top

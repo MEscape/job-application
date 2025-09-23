@@ -1,0 +1,54 @@
+{
+  "skills": [
+    {
+      "category": "Frontend Development",
+      "description": "Modern frontend technologies and frameworks for building responsive user interfaces",
+      "items": [
+        {"name": "React", "level": 90, "experience": "2+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"},
+        {"name": "Next.js", "level": 85, "experience": "1+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"},
+        {"name": "TypeScript", "level": 80, "experience": "1+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"},
+        {"name": "JavaScript", "level": 90, "experience": "2+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"},
+        {"name": "HTML/CSS", "level": 90, "experience": "3+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"}
+      ]
+    },
+    {
+      "category": "Backend Development",
+      "description": "Server-side technologies, APIs, and database management",
+      "items": [
+        {"name": "Java", "level": 80, "experience": "1.5+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg"},
+        {"name": "Spring Boot", "level": 85, "experience": "1+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg"},
+        {"name": "PostgreSQL", "level": 80, "experience": "2+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg"},
+        {"name": "Redis", "level": 70, "experience": "0.5+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg"}
+      ]
+    },
+    {
+      "category": "Mobile Development",
+      "description": "Cross-platform and native mobile application development",
+      "items": [
+        {"name": "React Native", "level": 85, "experience": "2+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"}
+      ]
+    },
+    {
+      "category": "Cloud & DevOps",
+      "description": "Cloud platforms, containerization, and deployment automation",
+      "items": [
+        {"name": "Kubernetes", "level": 70, "experience": "1+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg"},
+        {"name": "Jenkins", "level": 75, "experience": "1+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jenkins/jenkins-original.svg"}
+      ]
+    },
+    {
+      "category": "Tools & Productivity",
+      "description": "Development environment, version control, and productivity tools",
+      "items": [
+        {"name": "Git", "level": 75, "experience": "3+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg"},
+        {"name": "Jira", "level": 70, "experience": "2+ years", "logo": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg"},
+        {"name": "MS Office", "level": 90, "experience": "13+ years", "logo": "https://img.icons8.com/color/96/microsoft-office-2019.png"}
+      ]
+    }
+  ],
+  "languages": [
+    {"name": "German", "level": "Native"},
+    {"name": "English", "level": "B2.2"},
+    {"name": "French", "level": "B1"}
+  ]
+}

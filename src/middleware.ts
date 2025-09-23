@@ -9,7 +9,8 @@ export default auth(async (req) => {
     // List of public routes
     const publicRoutes = [
         "/",          // landing page
-        "/login",
+        "/login",     // login page
+        "/portfolio", // portfolio page
         "/api/auth",  // auth API
     ]
 

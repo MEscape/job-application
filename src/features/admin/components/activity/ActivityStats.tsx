@@ -1,7 +1,6 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { BaseCard } from "@/features/shared/components"
 import { Activity, Users, TrendingUp } from "lucide-react"
 import { useEffect, useState } from "react"
 
