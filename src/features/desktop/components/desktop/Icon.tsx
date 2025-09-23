@@ -13,7 +13,8 @@ import {
   Code, 
   File,
   Trash2,
-  HardDrive
+  HardDrive,
+  Globe
 } from "lucide-react";
 import { formatFileSize } from "../../utils/finderHelper";
 interface IconProps {
@@ -35,6 +36,9 @@ const getFileIcon = (item: FinderItem, isSystemItem: boolean) => {
     }
     if (item.name.toLowerCase().includes('macintosh') || item.name.toLowerCase().includes('disk')) {
       return <HardDrive className="w-8 h-8 text-gray-600" />;
+    }
+    if (item.name.toLowerCase().includes('safari')) {
+      return <Globe className="w-8 h-8 text-blue-500" />;
     }
   }
 

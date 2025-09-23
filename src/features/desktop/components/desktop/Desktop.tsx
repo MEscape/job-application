@@ -6,6 +6,7 @@ import { useWindowStore } from "../../hooks/useWindowStore";
 import { Finder } from "../finder/Finder";
 import { PDFViewer } from "../pdf/PDFViewer";
 import { VideoViewer } from "../video/VideoViewer";
+import { Browser } from "../browser/Browser";
 import { ICON_SIZE } from "../../constants/grid";
 import { Icon } from "./Icon";
 
@@ -47,7 +48,17 @@ export function Desktop({ className = "" }: DesktopProps) {
   const handleItemDoubleClick = useCallback((itemId: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // Don't handle double-clicks on system items
+    // Handle Safari system item
+    if (itemId === 'system-safari') {
+      addWindow({
+        title: 'Safari',
+        content: <Browser initialUrl="/portfolio" />,
+        size: { width: 1200, height: 800 }
+      });
+      return;
+    }
+
+    // Don't handle double-clicks on other system items
     if (isSystemItem(itemId)) return;
 
     const item = items.find(i => i.id === itemId);

@@ -20,7 +20,7 @@ const SYSTEM_ITEMS: FinderItem[] = [
   {
     id: 'system-trash',
     name: 'Trash',
-    type: 'folder',
+    type: 'other',
     path: '~/.Trash',
     parentPath: '',
     dateModified: new Date(),
@@ -34,10 +34,19 @@ const SYSTEM_ITEMS: FinderItem[] = [
     parentPath: '',
     dateModified: new Date(),
     dateCreated: new Date(),
+  },
+  {
+    id: 'system-safari',
+    name: 'Safari',
+    type: 'other',
+    path: '/Applications/Safari.app',
+    parentPath: '',
+    dateModified: new Date(),
+    dateCreated: new Date(),
   }
 ];
 
-const SYSTEM_ITEM_IDS = new Set(['system-trash', 'system-macintosh']);
+const SYSTEM_ITEM_IDS = new Set(['system-trash', 'system-macintosh', 'system-safari']);
 
 export const createDesktopStore = () => {
   type Listener = (state: DesktopState & DesktopActions) => void;
