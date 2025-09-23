@@ -1,7 +1,6 @@
 import React from "react";
 import { AppType } from "@/features/desktop/constants/dock";
 import {
-    BrowserApp,
     CameraApp,
     MailApp,
     MusicApp,
@@ -12,6 +11,7 @@ import {
     SettingsApp
 } from "@/features/desktop/components/static";
 import { Finder } from "@/features/desktop/components/finder/Finder";
+import { Browser } from "@/features/desktop/components/browser";
 
 export const getAppContent = (
     appType: AppType["type"]
@@ -43,7 +43,7 @@ export const getAppContent = (
             return <NotesApp />;
 
         case "browser":
-            return <BrowserApp />;
+            return <Browser initialUrl="/portfolio" />;
 
         case "photos":
             return <PhotosApp />;
