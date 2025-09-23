@@ -9,8 +9,8 @@ interface LavaBackgroundProps {
 }
 
 const BLOB_OPACITY = {
-  main: 1,
-  aura: 1,
+  main: 0.7,
+  aura: 0.6,
   base: 1,
 };
 

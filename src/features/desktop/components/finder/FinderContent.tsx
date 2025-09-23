@@ -4,6 +4,7 @@ import { useWindowStore } from "../../hooks/useWindowStore";
 import { PDFViewer } from "../pdf/PDFViewer";
 import { VideoViewer } from "../video/VideoViewer";
 import { FileItem } from "./FileItem";
+import React from "react";
 
 export const FinderContent: React.FC = () => {
     const {

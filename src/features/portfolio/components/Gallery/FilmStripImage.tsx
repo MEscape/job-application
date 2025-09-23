@@ -26,6 +26,7 @@ export const FilmStripImage: React.FC<FilmStripImageProps> = ({
                                                        }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const [aspectRatio, setAspectRatio] = useState<number>(1); // Default to square
 
   // Animation targets
   const stripPosition = originalPosition;
@@ -35,7 +36,7 @@ export const FilmStripImage: React.FC<FilmStripImageProps> = ({
   const galleryScale: [number, number, number] = [2.8, 2.8, 1];
   const galleryRotation: [number, number, number] = [0, 0, 0];
 
-  // Load texture
+  // Load texture and calculate aspect ratio
   useEffect(() => {
     const loader = new THREE.TextureLoader();
     loader.load(
@@ -45,6 +46,14 @@ export const FilmStripImage: React.FC<FilmStripImageProps> = ({
           loadedTexture.wrapT = THREE.ClampToEdgeWrapping;
           loadedTexture.minFilter = THREE.LinearFilter;
           loadedTexture.magFilter = THREE.LinearFilter;
+          
+          // Calculate aspect ratio from the loaded image
+          const image = loadedTexture.image;
+          if (image && image.width && image.height) {
+            const ratio = image.width / image.height;
+            setAspectRatio(ratio);
+          }
+          
           setTexture(loadedTexture);
         },
         undefined,
@@ -86,9 +95,24 @@ export const FilmStripImage: React.FC<FilmStripImageProps> = ({
           }
           const fallbackTexture = new THREE.CanvasTexture(canvas);
           setTexture(fallbackTexture);
+          setAspectRatio(1); // Fallback is square
         }
     );
   }, [imageUrl]);
+
+  // Calculate geometry dimensions based on aspect ratio
+  const getGeometryDimensions = (): [number, number] => {
+    const maxWidth = 1.5;
+    const maxHeight = 1.5;
+    
+    if (aspectRatio > 1) {
+      // Landscape: width is constrained
+      return [maxWidth, maxWidth / aspectRatio];
+    } else {
+      // Portrait or square: height is constrained
+      return [maxHeight * aspectRatio, maxHeight];
+    }
+  };
 
   // Animation frame
   useFrame((state, delta) => {
@@ -145,6 +169,9 @@ export const FilmStripImage: React.FC<FilmStripImageProps> = ({
 
   // Calculate hologram strength based on gallery mode and selection
   const hologramStrength = (isGalleryMode && isSelected) ? 0.15 : 1.0;
+  
+  // Get the proper dimensions for this image's aspect ratio
+  const [planeWidth, planeHeight] = getGeometryDimensions();
 
   return (
       <mesh
@@ -154,7 +181,7 @@ export const FilmStripImage: React.FC<FilmStripImageProps> = ({
           onPointerEnter={() => onHover(index)}
           onPointerLeave={() => onHover(null)}
       >
-        <planeGeometry args={[1.5, 1, 32, 32]} />
+        <planeGeometry args={[planeWidth, planeHeight, 32, 32]} />
         <HolographicMaterial
             texture={texture}
             glow={isHovered ? 2.5 : 1.5}
