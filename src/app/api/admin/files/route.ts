@@ -12,7 +12,8 @@ import { withErrorHandler, ErrorResponses } from "@/features/shared/lib/errorHan
 const updateFileSchema = z.object({
   id: z.string().min(1, "File ID is required"),
   name: z.string().min(1, "File name is required").optional(),
-  parentPath: z.string().optional()
+  parentPath: z.string().optional(),
+  userId: z.string().nullable().optional()
 })
 
 const deleteFileSchema = z.object({
@@ -37,6 +38,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
                     extension: true,
                     size: true,
                     isReal: true,
+                    userId: true,
                     dateCreated: true,
                     dateModified: true
                 }
@@ -113,6 +115,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
                     dateCreated: true,
                     dateModified: true,
                     uploadedBy: true,
+                    userId: true,
                     uploader: {
                         select: {
                             id: true,
@@ -222,7 +225,7 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
         await requireAdmin()
 
         const body = await request.json()
-        const { id, name, parentPath } = updateFileSchema.parse(body)
+        const { id, name, parentPath, userId } = updateFileSchema.parse(body)
 
         // Get the current file
         const currentFile = await prisma.fileSystemItem.findUnique({
@@ -241,6 +244,10 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
         // Build update data
         const updateData: any = {
             dateModified: new Date()
+        }
+
+        if (userId !== undefined) {
+            updateData.userId = userId
         }
         
         if (name && name !== currentFile.name) {

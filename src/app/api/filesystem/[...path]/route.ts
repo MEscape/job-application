@@ -2,7 +2,8 @@ import {prisma} from "@/features/shared/lib";
 import {NextRequest, NextResponse} from "next/server";
 import {FileSystemService} from "@/features/desktop/lib/filesystem/FileSystemService";
 import {FileSystemItemsQuerySchema} from "@/features/desktop/lib/filesystem/fileSystemScheme";
-import { withErrorHandler } from '@/features/shared/lib/errorHandler'
+import { withErrorHandler, ErrorResponses } from '@/features/shared/lib/errorHandler'
+import { auth } from '@/features/auth/lib/auth'
 
 const fileSystemService = new FileSystemService(prisma)
 
@@ -17,6 +18,12 @@ export const GET = withErrorHandler(async (
     request: NextRequest,
     { params }: { params: Promise<{ path?: string[] }> }
 ) => {
+    // Require authentication
+    const session = await auth()
+    if (!session?.user?.id) {
+        throw ErrorResponses.UNAUTHORIZED
+    }
+
     const resolvedParams = await params
     const path = extractPath(resolvedParams)
     const { searchParams } = new URL(request.url)
@@ -25,6 +32,7 @@ export const GET = withErrorHandler(async (
         path,
         sortBy: searchParams.get('sortBy') || 'name',
         sortOrder: searchParams.get('sortOrder') || 'asc',
+        userId: session.user.id,
     }
 
     const validatedParams = FileSystemItemsQuerySchema.parse(queryParams)

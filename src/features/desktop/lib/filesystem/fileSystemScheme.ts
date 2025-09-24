@@ -6,6 +6,7 @@ export const FileSystemItemsQuerySchema = z.object({
         .enum(['name', 'dateModified', 'size', 'type'])
         .default('name'),
     sortOrder: z.enum(['asc', 'desc']).default('asc'),
+    userId: z.string().optional(),
 })
 
 export type FileSystemItemsQueryRequest = z.infer<typeof FileSystemItemsQuerySchema>

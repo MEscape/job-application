@@ -7,6 +7,7 @@ import { FileSystemItem, UpdateFileData } from "@/features/admin/stores/fileMana
 import { useFileManagementStore } from "@/features/admin/hooks/useFileManagementStore"
 import { Modal } from "./Modal"
 import { PathInput } from "./PathInput"
+import { UserInput } from "./UserInput"
 
 interface EditFileModalProps {
     isOpen: boolean
@@ -40,10 +41,28 @@ export function EditFileModal({ isOpen, file, onClose, onSuccess }: EditFileModa
         parentPath: file.parentPath || ''
     })
     const [nameOnly, setNameOnly] = useState(initialNameOnly)
+    const [selectedUser, setSelectedUser] = useState(file.user?.name || '')
+    const [selectedUserId, setSelectedUserId] = useState(file.user?.id || null)
     const [errors, setErrors] = useState<Record<string, string>>({})
     const [showSuccess, setShowSuccess] = useState(false)
     
     const { updateFile, isUpdating, files } = useFileManagementStore()
+
+    // Load user name based on userId
+    const loadUserName = async (userId: string) => {
+        try {
+            const response = await fetch('/api/admin/users')
+            if (response.ok) {
+                const users = await response.json()
+                const user = users.find((u: any) => u.id === userId)
+                if (user) {
+                    setSelectedUser(user.name || user.email)
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user:', error)
+        }
+    }
 
     useEffect(() => {
         if (isOpen) {
@@ -55,6 +74,14 @@ export function EditFileModal({ isOpen, file, onClose, onSuccess }: EditFileModa
                 parentPath: file.parentPath || ''
             })
             setNameOnly(newNameOnly)
+            // Initialize with assigned user (userId), not uploader (user)
+            if (file.userId) {
+                setSelectedUserId(file.userId)
+                loadUserName(file.userId) // Load the actual user name
+            } else {
+                setSelectedUser('')
+                setSelectedUserId(null)
+            }
             setErrors({})
         }
     }, [isOpen, file, files])
@@ -67,7 +94,8 @@ export function EditFileModal({ isOpen, file, onClose, onSuccess }: EditFileModa
         const finalName = file.type === 'FOLDER' ? nameOnly : nameOnly + extension
         const finalFormData = {
             ...formData,
-            name: finalName
+            name: finalName,
+            userId: selectedUserId
         }
 
         // Basic validation
@@ -191,6 +219,28 @@ export function EditFileModal({ isOpen, file, onClose, onSuccess }: EditFileModa
                                 />
                             </div>
 
+                            {/* User Assignment */}
+                            <div>
+                                <label className="block text-slate-300 text-sm font-medium mb-2">
+                                    Assigned to User
+                                    <span className="text-slate-400 text-xs ml-2">Leave empty for public access</span>
+                                </label>
+                                <UserInput
+                                    value={selectedUser}
+                                    onChange={(value, userId) => {
+                                        setSelectedUser(value)
+                                        setSelectedUserId(userId || null)
+                                    }}
+                                    placeholder={file.type === 'FOLDER' ? 'Cannot reassign folders' : "Assign to user or leave empty for public access..."}
+                                    disabled={file.type === 'FOLDER'}
+                                />
+                                {file.type === 'FOLDER' && (
+                                    <p className="text-amber-400 text-sm mt-1">
+                                        ⚠️ Folders cannot be reassigned to prevent errors
+                                    </p>
+                                )}
+                            </div>
+
                             {/* Parent Path */}
                             <div>
                                 <label className="block text-slate-300 text-sm font-medium mb-2">
@@ -201,6 +251,7 @@ export function EditFileModal({ isOpen, file, onClose, onSuccess }: EditFileModa
                                     onChange={(value) => handleChange('parentPath', value)}
                                     disabled={file.type === 'FOLDER'}
                                     placeholder={file.type === 'FOLDER' ? 'Cannot move folders' : 'Select parent path (optional)'}
+                                    userId={selectedUserId}
                                 />
                                 {file.type === 'FOLDER' && (
                                     <p className="text-amber-400 text-sm mt-1">

@@ -42,6 +42,7 @@ export class FileSystemService {
             path: requestPath,
             sortBy = 'name',
             sortOrder = 'asc',
+            userId,
         } = request
 
         // Validate and normalize path
@@ -53,7 +54,14 @@ export class FileSystemService {
 
         // Build where clause
         const where: Prisma.FileSystemItemWhereInput = {
-            parentPath: normalizedPath === '/' ? null : normalizedPath
+            parentPath: normalizedPath === '/' ? null : normalizedPath,
+            // Filter by userId: show items with null userId (available to all) or specific userId
+            ...(userId && {
+                OR: [
+                    { userId: null },
+                    { userId: userId }
+                ]
+            })
         }
 
         // Build orderBy clause

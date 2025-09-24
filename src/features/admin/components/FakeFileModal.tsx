@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { File, Video, AlertCircle, CheckCircle2, CheckCircle, FileText, Image, Music, Archive, Code, Folder } from "lucide-react"
 import { Modal } from './Modal'
 import { PathInput } from './PathInput'
+import { UserInput } from './UserInput'
 
 interface FakeFileModalProps {
   isOpen: boolean
@@ -16,6 +17,8 @@ interface FormData {
   fileName: string
   parentPath: string
   fileType: 'FOLDER' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT' | 'ARCHIVE' | 'CODE' | 'TEXT' | 'OTHER' | ''
+  selectedUser: string
+  userId: string | null
 }
 
 interface CreateProgress {
@@ -28,13 +31,16 @@ interface FormErrors {
   fileName?: string
   parentPath?: string
   fileType?: string
+  selectedUser?: string
 }
 
 export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps) {
   const [formData, setFormData] = useState<FormData>({
     fileName: '',
     parentPath: '/',
-    fileType: ''
+    fileType: '',
+    selectedUser: '',
+    userId: null
   })
   
   const [createProgress, setCreateProgress] = useState<CreateProgress>({
@@ -80,7 +86,8 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
         body: JSON.stringify({
           fileName: formData.fileName,
           parentPath: formData.parentPath,
-          fileType: formData.fileType
+          fileType: formData.fileType,
+          userId: formData.userId
         })
       })
       
@@ -93,7 +100,7 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
       setShowSuccess(true)
 
       // Reset form
-      setFormData({ fileName: '', parentPath: '/', fileType: '' })
+      setFormData({ fileName: '', parentPath: '/', fileType: '', selectedUser: '', userId: null })
       setErrors({})
       
       // Close modal after short delay
@@ -115,7 +122,7 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
 
   const handleClose = () => {
     if (!createProgress.isCreating) {
-      setFormData({ fileName: '', parentPath: '/', fileType: '' })
+      setFormData({ fileName: '', parentPath: '/', fileType: '', selectedUser: '', userId: null })
       setErrors({})
       setCreateProgress({ isCreating: false, status: 'idle' })
       onClose()
@@ -238,7 +245,26 @@ export function FakeFileModal({ isOpen, onClose, onSuccess }: FakeFileModalProps
             error={errors.parentPath}
             placeholder="Select parent folder..."
             disabled={createProgress.isCreating}
+            userId={formData.userId}
           />
+        </div>
+
+        {/* User Selection */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-white/80">
+            User (Optional)
+            <span className="text-white/50 text-xs ml-2">Leave empty for public access</span>
+          </label>
+          <UserInput
+            value={formData.selectedUser}
+            onChange={(value, userId) => {
+              setFormData(prev => ({ ...prev, selectedUser: value, userId: userId || null }))
+            }}
+            placeholder="Select user or leave empty for public access..."
+            disabled={createProgress.isCreating}
+            className="bg-slate-800/50 border-slate-600/50 text-white placeholder-white/40"
+          />
+
         </div>
 
         {/* File Type Selection */}

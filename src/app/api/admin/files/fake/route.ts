@@ -9,7 +9,8 @@ import { withErrorHandler, ErrorResponses } from '@/features/shared/lib/errorHan
 const FakeFileSchema = z.object({
   fileName: z.string().min(1, 'File name is required'),
   parentPath: z.string().min(1, 'Parent path is required'),
-  fileType: z.nativeEnum(FileType)
+  fileType: z.nativeEnum(FileType),
+  userId: z.string().nullable().optional()
 })
 
 function getExtensionFromType(fileType: FileType): string {
@@ -65,13 +66,14 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         name: validatedRequest.fileName,
         type: validatedRequest.fileType,
         path: fullFilePath,
-        parentPath: normalizedParentPath === '/' ? null : normalizedParentPath,
         size: null, // No size for fake files
         extension: getExtensionFromType(validatedRequest.fileType),
         filePath: null, // No physical file path
         isReal: false, // Mark as fake file
         uploadedBy: user.id,
-        downloadCount: 0
+        userId: validatedRequest.userId || null, // Store user-specific assignment
+        downloadCount: 0,
+        ...(normalizedParentPath !== '/' && { parentPath: normalizedParentPath })
       }
     })
 

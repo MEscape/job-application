@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Upload, File, Video, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Modal } from './Modal'
 import { PathInput } from './PathInput'
+import { UserInput } from './UserInput'
 
 interface FileUploadModalProps {
   isOpen: boolean
@@ -16,12 +17,15 @@ interface FormData {
   fileName: string
   parentPath: string
   file: File | null
+  selectedUser: string
+  userId: string | null
 }
 
 interface FormErrors {
   fileName?: string
   parentPath?: string
   file?: string
+  selectedUser?: string
 }
 
 interface UploadProgress {
@@ -35,7 +39,9 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
   const [formData, setFormData] = useState<FormData>({
     fileName: '',
     parentPath: '/',
-    file: null
+    file: null,
+    selectedUser: '',
+    userId: null
   })
   
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
@@ -117,6 +123,9 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       formDataToSend.append('file', formData.file!)
       formDataToSend.append('fileName', formData.fileName)
       formDataToSend.append('parentPath', formData.parentPath)
+      if (formData.userId) {
+        formDataToSend.append('userId', formData.userId)
+      }
       
       // Simulate progress for better UX
       const progressInterval = setInterval(() => {
@@ -141,7 +150,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       setUploadProgress({ isUploading: false, progress: 100, status: 'success' })
 
       // Reset form
-      setFormData({ fileName: '', parentPath: '/', file: null })
+      setFormData({ fileName: '', parentPath: '/', file: null, selectedUser: '', userId: null })
       setErrors({})
       
       // Close modal after short delay
@@ -163,7 +172,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
 
   const handleClose = () => {
     if (!uploadProgress.isUploading) {
-      setFormData({ fileName: '', parentPath: '/', file: null })
+      setFormData({ fileName: '', parentPath: '/', file: null, selectedUser: '', userId: null })
       setErrors({})
       setUploadProgress({ isUploading: false, progress: 0, status: 'idle' })
       onClose()
@@ -294,7 +303,24 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
             error={errors.parentPath}
             placeholder="Select parent folder..."
             disabled={uploadProgress.isUploading}
+            userId={formData.userId}
           />
+        </div>
+
+        {/* User Selection */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-white/80">
+            User (Optional)
+          </label>
+          <UserInput
+            value={formData.selectedUser}
+            onChange={(value, userId) => {
+              setFormData(prev => ({ ...prev, selectedUser: value, userId: userId || null }))
+            }}
+            placeholder="Select user or leave empty for all users..."
+            disabled={uploadProgress.isUploading}
+          />
+
         </div>
 
         {/* Progress Bar */}
