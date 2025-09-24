@@ -17,7 +17,8 @@ const AdminFileUploadSchema = z.object({
   mimeType: z.string().refine(
     (type) => type === 'application/pdf' || type.startsWith('video/'),
     'Only PDF and video files are allowed'
-  )
+  ),
+  userId: z.string().optional()
 })
 
 function getFileTypeFromMime(mimeType: string): FileType {
@@ -54,6 +55,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     const file = formData.get('file') as File
     const fileName = formData.get('fileName') as string
     const parentPath = formData.get('parentPath') as string
+    const userId = formData.get('userId') as string | null
 
     if (!file) {
       throw ErrorResponses.VALIDATION_ERROR
@@ -64,7 +66,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       fileName: fileName || file.name,
       parentPath,
       fileSize: file.size,
-      mimeType: file.type
+      mimeType: file.type,
+      userId: userId || undefined
     }
 
     const validatedRequest = AdminFileUploadSchema.parse(uploadRequest)
@@ -136,13 +139,14 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         name: validatedRequest.fileName,
         type: getFileTypeFromMime(file.type),
         path: fullFilePath,
-        parentPath: normalizedParentPath === '/' ? null : normalizedParentPath,
         size: validatedRequest.fileSize,
         extension,
         filePath: process.env.NODE_ENV === 'production' ? (actualBlobUrl) : `/uploads/${uniqueFileName}`, // Store actual blob URL in prod, local path in dev
         isReal: true, // Mark as real file
         uploadedBy: user.id,
-        downloadCount: 0
+        userId: validatedRequest.userId || null, // Store user-specific assignment
+        downloadCount: 0,
+        ...(normalizedParentPath !== '/' && { parentPath: normalizedParentPath })
       }
     })
 

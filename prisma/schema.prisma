@@ -32,6 +32,7 @@ model User {
 
   // Relationships
   uploadedFiles FileSystemItem[]
+  userFiles     FileSystemItem[] @relation("UserFiles")
   activityLogs  ActivityLog[]
   readActivities ActivityLog[] @relation("ActivityReader")
   loginAttempts LoginAttempt[]
@@ -61,6 +62,7 @@ model FileSystemItem {
   filePath      String?
   isReal        Boolean @default(false)
   uploadedBy    String
+  userId        String? // nullable for user-specific files
   downloadCount Int     @default(0)
 
   // Timestamps
@@ -71,12 +73,14 @@ model FileSystemItem {
   parent   FileSystemItem?  @relation("ParentChild", fields: [parentPath], references: [path], onDelete: Cascade)
   children FileSystemItem[] @relation("ParentChild")
   uploader User?            @relation(fields: [uploadedBy], references: [id])
+  user     User?            @relation("UserFiles", fields: [userId], references: [id])
 
   // Indices
   @@index([parentPath])
   @@index([type])
   @@index([path])
   @@index([uploadedBy])
+  @@index([userId])
   @@map("filesystem_items")
 }
 

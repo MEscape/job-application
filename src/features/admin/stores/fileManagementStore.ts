@@ -16,6 +16,7 @@ export interface UpdateFileData {
     isReal?: boolean
     size?: number
     content?: string
+    userId?: string | null
 }
 
 export interface FileFilters {
@@ -34,6 +35,7 @@ export interface FileSystemItem {
     content: string | null
     downloads: number
     uploadedBy: string | null
+    userId: string | null
     createdAt: Date
     updatedAt: Date
     user?: {

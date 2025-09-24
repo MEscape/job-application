@@ -13,6 +13,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         path: '/', // Root path for /api/filesystem
         sortBy: searchParams.get('sortBy') || 'name',
         sortOrder: searchParams.get('sortOrder') || 'asc',
+        userId: searchParams.get('userId') || undefined,
     }
 
     const validatedParams = FileSystemItemsQuerySchema.parse(queryParams)

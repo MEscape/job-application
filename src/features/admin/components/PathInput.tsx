@@ -17,6 +17,7 @@ interface PathInputProps {
   error?: string
   disabled?: boolean
   className?: string
+  userId?: string | null
 }
 
 export function PathInput({
@@ -25,7 +26,8 @@ export function PathInput({
   placeholder = "Select parent path...",
   error,
   disabled = false,
-  className = ""
+  className = "",
+  userId
 }: PathInputProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [paths, setPaths] = useState<PathOption[]>([])
@@ -49,23 +51,29 @@ export function PathInput({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Fetch paths when component mounts
+  // Fetch paths when component mounts or userId changes
   useEffect(() => {
     fetchPaths()
-  }, [])
+  }, [userId])
 
   const fetchPaths = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch('/api/admin/files/paths')
-      if (response.ok) {
-        const data = await response.json()
-        setPaths(data.paths || [])
-      } else {
-        console.error('Failed to fetch paths')
+      const url = new URL('/api/admin/files/paths', window.location.origin)
+      if (userId) {
+        url.searchParams.set('userId', userId)
       }
+      
+      const response = await fetch(url.toString())
+      if (!response.ok) {
+        throw new Error('Failed to fetch paths')
+      }
+      
+      const data = await response.json()
+      setPaths(data.paths || [])
     } catch (error) {
       console.error('Error fetching paths:', error)
+      setPaths([])
     } finally {
       setIsLoading(false)
     }
