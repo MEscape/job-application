@@ -123,8 +123,11 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     // Check authentication and admin privileges
     const user = await requireAdmin()
 
-    if (process.env.NODE_ENV === 'development') {
-      // Development: Handle FormData uploads to local filesystem
+    // Check if this is a FormData request (development) or JSON request (production)
+    const contentType = request.headers.get('content-type') || ''
+    
+    if (contentType.includes('multipart/form-data')) {
+      // Development: Handle FormData uploads (original functionality)
       const formData = await request.formData()
       const file = formData.get('file') as File
       const fileName = formData.get('fileName') as string
@@ -138,34 +141,38 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       // Validate the upload request
       const uploadRequest = {
         fileName: fileName || file.name,
-        parentPath,
+        parentPath: parentPath || '/',
         fileSize: file.size,
         mimeType: file.type,
         userId: userId || undefined
       }
 
       const validatedRequest = AdminFileUploadSchema.parse(uploadRequest)
-      const extension = getExtensionFromMime(file.type, validatedRequest.fileName)
-      const uniqueFileName = `${Date.now()}-${validatedRequest.fileName}`
-      
-      // Save locally in development
-      const uploadsDir = path.join(process.cwd(), 'uploads')
-      const filePath = path.join(uploadsDir, uniqueFileName)
-      
-      // Ensure uploads directory exists
-      await mkdir(uploadsDir, { recursive: true })
-      
-      // Convert file to buffer and save
-      const arrayBuffer = await file.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
+
+      // Get file extension
+      const extension = getExtensionFromMime(file.type, file.name)
+
+      // Create upload directory
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+      await mkdir(uploadDir, { recursive: true })
+
+      // Generate unique filename
+      const timestamp = Date.now()
+      const uniqueFileName = `${timestamp}-${file.name}`
+      const filePath = path.join(uploadDir, uniqueFileName)
+
+      // Save file to disk
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
       await writeFile(filePath, buffer)
 
-      // Create database record using relative path
+      // Create database record
+      const relativePath = `/uploads/${uniqueFileName}`
       return await createDatabaseRecord(
         validatedRequest,
         extension,
-        uniqueFileName,
-        `/uploads/${uniqueFileName}`,
+        file.name,
+        relativePath,
         user
       )
     } else {

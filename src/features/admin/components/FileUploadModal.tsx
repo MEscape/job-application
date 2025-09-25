@@ -119,32 +119,65 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
     setUploadProgress({ isUploading: true, progress: 0, status: 'uploading' })
     
     try {
-      const formDataToSend = new FormData()
-      formDataToSend.append('file', formData.file!)
-      formDataToSend.append('fileName', formData.fileName)
-      formDataToSend.append('parentPath', formData.parentPath)
-      if (formData.userId) {
-        formDataToSend.append('userId', formData.userId)
-      }
-      
-      // Simulate progress for better UX
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => ({
-          ...prev,
-          progress: Math.min(prev.progress + Math.random() * 20, 90)
-        }))
-      }, 200)
-      
-      const response = await fetch('/api/admin/files/upload', {
-        method: 'POST',
-        body: formDataToSend
-      })
-      
-      clearInterval(progressInterval)
-      
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Upload failed')
+      // Use different upload methods based on environment
+      if (process.env.NODE_ENV === 'development') {
+        // Development: Use FormData (original functionality)
+        const uploadFormData = new FormData()
+        uploadFormData.append('file', formData.file!)
+        uploadFormData.append('fileName', formData.fileName)
+        uploadFormData.append('parentPath', formData.parentPath)
+        if (formData.userId) {
+          uploadFormData.append('userId', formData.userId)
+        }
+        
+        // Simulate progress for better UX
+        const progressInterval = setInterval(() => {
+          setUploadProgress(prev => ({
+            ...prev,
+            progress: Math.min(prev.progress + Math.random() * 20, 90)
+          }))
+        }, 200)
+        
+        const response = await fetch('/api/admin/files/upload', {
+          method: 'POST',
+          body: uploadFormData,
+        })
+        
+        clearInterval(progressInterval)
+        
+        if (!response.ok) {
+          throw new Error(`Upload failed: ${response.statusText}`)
+        }
+        
+        const result = await response.json()
+      } else {
+        // Production: Use Vercel Blob
+        const { upload } = await import('@vercel/blob/client')
+        
+        // Prepare client payload with file metadata
+        const clientPayload = JSON.stringify({
+          fileName: formData.fileName,
+          parentPath: formData.parentPath,
+          userId: formData.userId,
+          type: formData.file!.type,
+          size: formData.file!.size
+        })
+        
+        // Simulate progress for better UX
+        const progressInterval = setInterval(() => {
+          setUploadProgress(prev => ({
+            ...prev,
+            progress: Math.min(prev.progress + Math.random() * 20, 90)
+          }))
+        }, 200)
+        
+        await upload(formData.file!.name, formData.file!, {
+          access: 'public',
+          handleUploadUrl: '/api/admin/files/upload',
+          clientPayload
+        })
+        
+        clearInterval(progressInterval)
       }
       
       setUploadProgress({ isUploading: false, progress: 100, status: 'success' })
@@ -158,7 +191,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
         onSuccess?.()
         onClose()
         setUploadProgress({ isUploading: false, progress: 0, status: 'idle' })
-      }, 1000)
+      }, 1500)
       
     } catch (error) {
       setUploadProgress({ 
