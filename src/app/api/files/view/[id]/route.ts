@@ -31,6 +31,13 @@ export const GET = withErrorHandler(async (
       throw ErrorResponses.VALIDATION_ERROR
     }
 
+    // Allow access if user is admin or if file is attached to this user or public
+    const hasAccess = file.userId === null || session.user.isAdmin || file.userId === session.user.id
+    
+    if (!hasAccess) {
+      throw ErrorResponses.FORBIDDEN
+    }
+
     let fileBuffer: Buffer
     let contentType = 'application/octet-stream'
 
