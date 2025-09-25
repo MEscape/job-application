@@ -95,25 +95,27 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       const buffer = Buffer.from(arrayBuffer)
       await writeFile(filePath, buffer)
     } else {
-      // Upload to Vercel Blob in production
-      // Ensure we have a valid content type
+      // Upload to Vercel Blob in production using multipart upload for large files
       const contentType = file.type || validatedRequest.mimeType || 'application/octet-stream'
       
-      // Debug logging for content type
-      console.log('File upload debug:', {
-        fileName: validatedRequest.fileName,
-        fileType: file.type,
-        validatedMimeType: validatedRequest.mimeType,
-        finalContentType: contentType
-      })
-      
-      const blob = await put(uniqueFileName, file, {
-        access: 'public',
-        addRandomSuffix: false,
-        contentType: contentType
-      })
-      // Store the actual blob URL for internal use, return secure proxy URL
-      actualBlobUrl = blob.url
+      // Use multipart upload for files larger than 10MB
+      if (file.size > 10 * 1024 * 1024) {
+        const blob = await put(uniqueFileName, file, {
+          access: 'public',
+          addRandomSuffix: false,
+          contentType: contentType,
+          multipart: true // This enables automatic chunking by Vercel
+        })
+        actualBlobUrl = blob.url
+      } else {
+        // Regular upload for smaller files
+        const blob = await put(uniqueFileName, file, {
+          access: 'public',
+          addRandomSuffix: false,
+          contentType: contentType
+        })
+        actualBlobUrl = blob.url
+      }
     }
 
     // Normalize parent path
