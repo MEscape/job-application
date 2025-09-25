@@ -57,7 +57,7 @@ export function UserInput({
     // Fetch suggestions when debounced value changes
     useEffect(() => {
         const fetchSuggestions = async () => {
-            if (!debouncedValue || debouncedValue.length < 2) {
+            if (!debouncedValue || debouncedValue.length < 2 || disabled) {
                 setSuggestions([])
                 setIsOpen(false)
                 return
@@ -82,8 +82,13 @@ export function UserInput({
                     }).filter((user: UserSuggestion) => user.isActive) // Only show active users
                     
                     setSuggestions(filteredUsers)
+                    // Only open dropdown if we have suggestions and user is actively typing
+                    if (filteredUsers.length > 0 && !hasSelectedUser) {
+                        setIsOpen(true)
+                    }
                 } else {
                     setSuggestions([])
+                    setIsOpen(false)
                 }
             } catch (error) {
                 console.error('Error fetching users:', error)
@@ -95,7 +100,7 @@ export function UserInput({
         }
 
         fetchSuggestions()
-    }, [debouncedValue])
+    }, [debouncedValue, disabled, hasSelectedUser])
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.target.value
@@ -151,8 +156,9 @@ export function UserInput({
 
     const handleFocus = () => {
         if (disabled) return;
-        if (value && !hasSelectedUser) {
-            setIsOpen(suggestions.length > 0)
+        // Only open dropdown if there's a value, user hasn't selected anyone, and we have suggestions
+        if (value && value.length >= 2 && !hasSelectedUser && suggestions.length > 0) {
+            setIsOpen(true)
         }
     }
 

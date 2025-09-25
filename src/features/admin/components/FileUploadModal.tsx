@@ -72,9 +72,9 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
         newErrors.file = 'Only PDF and video files are allowed'
       }
       
-      // 100MB limit
-      if (formData.file.size > 100 * 1024 * 1024) {
-        newErrors.file = 'File size must be less than 100MB'
+      // 250MB limit
+      if (formData.file.size > 250 * 1024 * 1024) {
+        newErrors.file = 'File size must be less than 250MB'
       }
     }
     
@@ -88,7 +88,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       setFormData(prev => ({ 
         ...prev, 
         file,
-        fileName: prev.fileName || file.name // Keep original filename with extension
+        fileName: file.name // Always use the new file's name
       }))
       setErrors(prev => ({ ...prev, file: undefined }))
     }
@@ -101,7 +101,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       setFormData(prev => ({ 
         ...prev, 
         file,
-        fileName: prev.fileName || file.name // Keep original filename with extension
+        fileName: file.name // Always use the new file's name
       }))
       setErrors(prev => ({ ...prev, file: undefined }))
     }
@@ -247,7 +247,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
               ) : (
                 <div className="space-y-1">
                   <p className="text-white/80">Drop your file here or click to browse</p>
-                  <p className="text-white/60 text-sm">PDF and video files only (max 100MB)</p>
+                  <p className="text-white/60 text-sm">PDF and video files only (max 250MB)</p>
                 </div>
               )}
             </div>
