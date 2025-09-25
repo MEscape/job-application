@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { put } from '@vercel/blob'
+import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
 import { prisma } from '@/features/shared/lib'
 import { z } from 'zod'
 import { FileType } from '@prisma/client'
@@ -49,132 +49,201 @@ function getExtensionFromMime(mimeType: string, fileName: string): string | null
   return null
 }
 
+async function createDatabaseRecord(
+  validatedRequest: z.infer<typeof AdminFileUploadSchema>,
+  extension: string | null,
+  fileName: string,
+  filePath: string,
+  user: any
+) {
+  // Normalize parent path
+  const normalizedParentPath = validatedRequest.parentPath.startsWith('/') 
+    ? validatedRequest.parentPath 
+    : `/${validatedRequest.parentPath}`
+  
+  // Generate full file path
+  const fullFilePath = normalizedParentPath === '/' 
+    ? `/${validatedRequest.fileName}`
+    : `${normalizedParentPath}/${validatedRequest.fileName}`
+
+  // Check if file already exists in database
+  const existingFile = await prisma.fileSystemItem.findUnique({
+    where: { path: fullFilePath }
+  })
+
+  if (existingFile) {
+    throw ErrorResponses.CONFLICT
+  }
+
+  // Create database record
+  const newFile = await prisma.fileSystemItem.create({
+    data: {
+      name: validatedRequest.fileName,
+      type: getFileTypeFromMime(validatedRequest.mimeType),
+      path: fullFilePath,
+      size: validatedRequest.fileSize,
+      extension,
+      filePath,
+      isReal: true, // Mark as real file
+      uploadedBy: user.id,
+      userId: validatedRequest.userId || null, // Store user-specific assignment
+      downloadCount: 0,
+      ...(normalizedParentPath !== '/' && { parentPath: normalizedParentPath })
+    }
+  })
+
+  // Log file upload
+  await SessionTracker.logActivity({
+    userId: user.id,
+    action: 'UPLOAD_FILE',
+    resource: `api/admin/files/upload/${newFile.id}`
+  })
+
+  return NextResponse.json({
+    success: true,
+    file: {
+      id: newFile.id,
+      name: newFile.name,
+      type: newFile.type,
+      path: newFile.path,
+      parentPath: newFile.parentPath,
+      size: newFile.size,
+      extension: newFile.extension,
+      filePath: newFile.filePath,
+      isReal: newFile.isReal,
+      uploadedBy: newFile.uploadedBy,
+      downloadCount: newFile.downloadCount,
+      dateCreated: newFile.dateCreated,
+      dateModified: newFile.dateModified
+    }
+  })
+}
+
 export const POST = withErrorHandler(async (request: NextRequest) => {
     // Check authentication and admin privileges
     const user = await requireAdmin()
 
-    const formData = await request.formData()
-    const file = formData.get('file') as File
-    const fileName = formData.get('fileName') as string
-    const parentPath = formData.get('parentPath') as string
-    const userId = formData.get('userId') as string | null
-
-    if (!file) {
-      throw ErrorResponses.VALIDATION_ERROR
-    }
-
-    // Validate the upload request
-    const uploadRequest = {
-      fileName: fileName || file.name,
-      parentPath,
-      fileSize: file.size,
-      mimeType: file.type,
-      userId: userId || undefined
-    }
-
-    const validatedRequest = AdminFileUploadSchema.parse(uploadRequest)
-
-    // Generate unique filename
-    const timestamp = Date.now()
-    const extension = getExtensionFromMime(file.type, validatedRequest.fileName)
-    const uniqueFileName = `${timestamp}-${validatedRequest.fileName}`
+    // Check if this is a FormData request (development) or JSON request (production)
+    const contentType = request.headers.get('content-type') || ''
     
-    let actualBlobUrl: string | undefined
-    
-    // Handle file storage based on environment
-    if (process.env.NODE_ENV === 'development') {
-      // Save locally in development
-      const uploadsDir = path.join(process.cwd(), 'uploads')
-      const filePath = path.join(uploadsDir, uniqueFileName)
-      
-      // Ensure uploads directory exists
-      await mkdir(uploadsDir, { recursive: true })
-      
-      // Convert file to buffer and save
-      const arrayBuffer = await file.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
+    if (contentType.includes('multipart/form-data')) {
+      // Development: Handle FormData uploads (original functionality)
+      const formData = await request.formData()
+      const file = formData.get('file') as File
+      const fileName = formData.get('fileName') as string
+      const parentPath = formData.get('parentPath') as string
+      const userId = formData.get('userId') as string | null
+
+      if (!file) {
+        throw ErrorResponses.VALIDATION_ERROR
+      }
+
+      // Validate the upload request
+      const uploadRequest = {
+        fileName: fileName || file.name,
+        parentPath: parentPath || '/',
+        fileSize: file.size,
+        mimeType: file.type,
+        userId: userId || undefined
+      }
+
+      const validatedRequest = AdminFileUploadSchema.parse(uploadRequest)
+
+      // Get file extension
+      const extension = getExtensionFromMime(file.type, file.name)
+
+      // Create upload directory
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+      await mkdir(uploadDir, { recursive: true })
+
+      // Generate unique filename
+      const timestamp = Date.now()
+      const uniqueFileName = `${timestamp}-${file.name}`
+      const filePath = path.join(uploadDir, uniqueFileName)
+
+      // Save file to disk
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
       await writeFile(filePath, buffer)
-    } else {
-      // Upload to Vercel Blob in production
-      // Ensure we have a valid content type
-      const contentType = file.type || validatedRequest.mimeType || 'application/octet-stream'
-      
-      // Debug logging for content type
-      console.log('File upload debug:', {
-        fileName: validatedRequest.fileName,
-        fileType: file.type,
-        validatedMimeType: validatedRequest.mimeType,
-        finalContentType: contentType
-      })
-      
-      const blob = await put(uniqueFileName, file, {
-        access: 'public',
-        addRandomSuffix: false,
-        contentType: contentType
-      })
-      // Store the actual blob URL for internal use, return secure proxy URL
-      actualBlobUrl = blob.url
-    }
 
-    // Normalize parent path
-    const normalizedParentPath = validatedRequest.parentPath.startsWith('/') 
-      ? validatedRequest.parentPath 
-      : `/${validatedRequest.parentPath}`
-    
-    // Generate full file path
-    const fullFilePath = normalizedParentPath === '/' 
-      ? `/${validatedRequest.fileName}`
-      : `${normalizedParentPath}/${validatedRequest.fileName}`
-
-    // Check if file already exists in database
-    const existingFile = await prisma.fileSystemItem.findUnique({
-      where: { path: fullFilePath }
-    })
-
-    if (existingFile) {
-      throw ErrorResponses.CONFLICT
-    }
-
-    // Create database record
-    const newFile = await prisma.fileSystemItem.create({
-      data: {
-        name: validatedRequest.fileName,
-        type: getFileTypeFromMime(file.type),
-        path: fullFilePath,
-        size: validatedRequest.fileSize,
+      // Create database record
+      const relativePath = `/uploads/${uniqueFileName}`
+      return await createDatabaseRecord(
+        validatedRequest,
         extension,
-        filePath: process.env.NODE_ENV === 'production' ? (actualBlobUrl) : `/uploads/${uniqueFileName}`, // Store actual blob URL in prod, local path in dev
-        isReal: true, // Mark as real file
-        uploadedBy: user.id,
-        userId: validatedRequest.userId || null, // Store user-specific assignment
-        downloadCount: 0,
-        ...(normalizedParentPath !== '/' && { parentPath: normalizedParentPath })
-      }
-    })
+        file.name,
+        relativePath,
+        user
+      )
+    } else {
+      // Production: Use handleUpload for client-side uploads with server-side token generation
+      const body = (await request.json()) as HandleUploadBody
 
-    // Log file upload
-    await SessionTracker.logActivity({
-      userId: user.id,
-      action: 'UPLOAD_FILE',
-      resource: `api/admin/files/upload/${newFile.id}`
-    })
+      const jsonResponse = await handleUpload({
+        body,
+        request,
+        onBeforeGenerateToken: async (pathname, clientPayload) => {
+          // clientPayload is a string containing JSON with file metadata
+          let fileMetadata: any = {}
+          if (clientPayload) {
+            try {
+              fileMetadata = JSON.parse(clientPayload)
+            } catch (e) {
+              throw new Error('Invalid client payload')
+            }
+          }
 
-    return NextResponse.json({
-      success: true,
-      file: {
-        id: newFile.id,
-        name: newFile.name,
-        type: newFile.type,
-        path: newFile.path,
-        parentPath: newFile.parentPath,
-        size: newFile.size,
-        extension: newFile.extension,
-        filePath: newFile.filePath,
-        isReal: newFile.isReal,
-        uploadedBy: newFile.uploadedBy,
-        downloadCount: newFile.downloadCount,
-        dateCreated: newFile.dateCreated,
-        dateModified: newFile.dateModified
-      }
-    })
+          // Validate file type and size before generating token
+          const allowedTypes = ['application/pdf', 'video/mp4', 'video/webm', 'video/avi', 'video/mov', 'video/quicktime']
+          
+          if (fileMetadata.type && !allowedTypes.includes(fileMetadata.type)) {
+            throw new Error('Only PDF and video files are allowed')
+          }
+
+          if (fileMetadata.size && fileMetadata.size > 250 * 1024 * 1024) {
+            throw new Error('File size must not exceed 250MB')
+          }
+
+          return {
+            allowedContentTypes: allowedTypes,
+            maximumSizeInBytes: 250 * 1024 * 1024,
+            multipart: true, // Enable multipart uploads for large files
+            tokenPayload: JSON.stringify({
+              fileName: fileMetadata.fileName || pathname.split('/').pop() || 'unknown',
+              parentPath: fileMetadata.parentPath || '/',
+              userId: fileMetadata.userId || null,
+              fileSize: fileMetadata.size || 0,
+              mimeType: fileMetadata.type || 'application/octet-stream'
+            })
+          }
+        },
+        onUploadCompleted: async ({ blob, tokenPayload }) => {
+          // Parse tokenPayload to get file metadata
+          const metadata = JSON.parse(tokenPayload || '{}')
+
+          // Validate the upload request
+          const uploadRequest = {
+            fileName: metadata.fileName,
+            parentPath: metadata.parentPath,
+            fileSize: metadata.fileSize,
+            mimeType: metadata.mimeType,
+            userId: metadata.userId || undefined
+          }
+
+          const validatedRequest = AdminFileUploadSchema.parse(uploadRequest)
+          const extension = getExtensionFromMime(metadata.mimeType, metadata.fileName)
+
+          // Create database record using blob URL as filePath
+          await createDatabaseRecord(
+            validatedRequest,
+            extension,
+            metadata.fileName,
+            blob.url, // Use blob URL as filePath
+            user
+          )
+        }
+      })
+
+      return NextResponse.json(jsonResponse)
+    }
 })
