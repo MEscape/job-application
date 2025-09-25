@@ -13,7 +13,9 @@ import { withErrorHandler, ErrorResponses } from '@/features/shared/lib/errorHan
 const AdminFileUploadSchema = z.object({
   fileName: z.string().min(1, 'File name is required'),
   parentPath: z.string().min(1, 'Parent path is required'),
-  fileSize: z.number().positive('File size must be positive'),
+  fileSize: z.number()
+    .positive('File size must be positive')
+    .max(250 * 1024 * 1024, 'File size must not exceed 250MB'),
   mimeType: z.string().refine(
     (type) => type === 'application/pdf' || type.startsWith('video/'),
     'Only PDF and video files are allowed'
