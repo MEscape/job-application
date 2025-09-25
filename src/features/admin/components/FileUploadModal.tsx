@@ -88,7 +88,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       setFormData(prev => ({ 
         ...prev, 
         file,
-        fileName: file.name // Always use the new file's name
+        fileName: file.name
       }))
       setErrors(prev => ({ ...prev, file: undefined }))
     }
@@ -101,7 +101,7 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
       setFormData(prev => ({ 
         ...prev, 
         file,
-        fileName: file.name // Always use the new file's name
+        fileName: file.name
       }))
       setErrors(prev => ({ ...prev, file: undefined }))
     }
@@ -119,32 +119,12 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
     setUploadProgress({ isUploading: true, progress: 0, status: 'uploading' })
     
     try {
-      const formDataToSend = new FormData()
-      formDataToSend.append('file', formData.file!)
-      formDataToSend.append('fileName', formData.fileName)
-      formDataToSend.append('parentPath', formData.parentPath)
-      if (formData.userId) {
-        formDataToSend.append('userId', formData.userId)
-      }
+      const isDevelopment = process.env.NODE_ENV === 'development'
       
-      // Simulate progress for better UX
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => ({
-          ...prev,
-          progress: Math.min(prev.progress + Math.random() * 20, 90)
-        }))
-      }, 200)
-      
-      const response = await fetch('/api/admin/files/upload', {
-        method: 'POST',
-        body: formDataToSend
-      })
-      
-      clearInterval(progressInterval)
-      
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Upload failed')
+      if (isDevelopment) {
+        await handleDirectUpload()
+      } else {
+        await handleClientSideUpload()
       }
       
       setUploadProgress({ isUploading: false, progress: 100, status: 'success' })
@@ -167,6 +147,103 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
         status: 'error',
         error: error instanceof Error ? error.message : 'Upload failed'
       })
+    }
+  }
+
+  const handleDirectUpload = async () => {
+    const formDataToSend = new FormData()
+    formDataToSend.append('file', formData.file!)
+    formDataToSend.append('fileName', formData.fileName)
+    formDataToSend.append('parentPath', formData.parentPath)
+    if (formData.userId) {
+      formDataToSend.append('userId', formData.userId)
+    }
+    
+    // Progress simulation for development
+    const progressInterval = setInterval(() => {
+      setUploadProgress(prev => ({
+        ...prev,
+        progress: Math.min(prev.progress + Math.random() * 20, 90)
+      }))
+    }, 200)
+    
+    const response = await fetch('/api/admin/files/upload', {
+      method: 'POST',
+      body: formDataToSend
+    })
+    
+    clearInterval(progressInterval)
+    
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || error.error || 'Upload failed')
+    }
+  }
+
+  const handleClientSideUpload = async () => {
+    // Import upload function dynamically
+    const { upload } = await import('@vercel/blob/client')
+    
+    setUploadProgress(prev => ({ ...prev, progress: 10 }))
+    
+    // Generate unique filename
+    const timestamp = Date.now()
+    const uniqueFileName = `${timestamp}-${formData.fileName}`
+    
+    try {
+      // Step 1: Upload to Vercel Blob
+      const uploadResult = await upload(uniqueFileName, formData.file!, {
+        access: 'public',
+        handleUploadUrl: '/api/admin/files/upload',
+        clientPayload: JSON.stringify({
+          fileName: formData.fileName,
+          fileSize: formData.file!.size,
+          mimeType: formData.file!.type,
+          parentPath: formData.parentPath,
+          userId: formData.userId
+        })
+      })
+
+      console.log('Vercel Blob upload result:', uploadResult)
+      
+      setUploadProgress(prev => ({ ...prev, progress: 60 }))
+      
+      // Step 2: Register in database
+      const registrationResponse = await fetch('/api/admin/files/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: formData.fileName,
+          fileSize: formData.file!.size,
+          mimeType: formData.file!.type,
+          parentPath: formData.parentPath,
+          userId: formData.userId,
+          filePath: uploadResult.url,
+        }),
+      })
+      
+      if (!registrationResponse.ok) {
+        const errorData = await registrationResponse.json()
+        throw new Error(errorData.error || 'Database registration failed')
+      }
+      
+      const registrationData = await registrationResponse.json()
+      console.log('Database registration result:', registrationData)
+
+      setUploadProgress(prev => ({ ...prev, progress: 90 }))
+      
+      // Return combined result
+      return {
+        ...uploadResult,
+        file: registrationData.file,
+        success: true,
+        message: 'File uploaded and registered successfully'
+      }
+    } catch (error) {
+      console.error('Client-side upload error:', error)
+      throw error
     }
   }
 
@@ -200,6 +277,8 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
+
+  const isDevelopment = process.env.NODE_ENV === 'development'
 
   return (
     <Modal
@@ -320,14 +399,28 @@ export function FileUploadModal({ isOpen, onClose, onSuccess }: FileUploadModalP
             placeholder="Select user or leave empty for all users..."
             disabled={uploadProgress.isUploading}
           />
-
         </div>
+
+        {/* Upload Method Info */}
+        {formData.file && !uploadProgress.isUploading && (
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+            <p className="text-blue-400 text-sm flex items-center gap-2">
+              <Upload className="w-4 h-4" />
+              {isDevelopment 
+                ? `File will be uploaded directly to local storage (${formatFileSize(formData.file.size)})`
+                : `File will be uploaded using client-side upload to Vercel Blob (${formatFileSize(formData.file.size)})`
+              }
+            </p>
+          </div>
+        )}
 
         {/* Progress Bar */}
         {uploadProgress.isUploading && (
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-white/80">Uploading...</span>
+              <span className="text-white/80">
+                {isDevelopment ? 'Uploading to local storage...' : 'Uploading to cloud storage...'}
+              </span>
               <span className="text-white/60">{Math.round(uploadProgress.progress)}%</span>
             </div>
             <div className="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">

@@ -13,7 +13,7 @@ const FakeFileSchema = z.object({
   userId: z.string().nullable().optional()
 })
 
-function getExtensionFromType(fileType: FileType): string {
+function getExtensionFromType(fileType: FileType): string | null {
   switch (fileType) {
     case FileType.DOCUMENT:
       return '.pdf'
@@ -30,7 +30,7 @@ function getExtensionFromType(fileType: FileType): string {
     case FileType.TEXT:
       return '.txt'
     default:
-      return '.txt'
+      return null
   }
 }
 

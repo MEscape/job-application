@@ -47,13 +47,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
             if (!file) {
                 throw ErrorResponses.NOT_FOUND
             }
-            
-            // Log file access
-            await SessionTracker.logActivity({
-                userId: adminUser.id,
-                action: 'VIEW_FILE',
-                resource: `api/admin/files/${id}`
-            })
 
             return NextResponse.json({
                 id: file.id,

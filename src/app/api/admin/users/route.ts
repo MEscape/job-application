@@ -8,14 +8,7 @@ import { withErrorHandler, ErrorResponses } from "@/features/shared/lib/errorHan
 
 export const GET = withErrorHandler(async () => {
         // Check if user has admin privileges
-        const adminUser = await requireAdmin()
-
-        // Log user list access
-        await SessionTracker.logActivity({
-            userId: adminUser.id,
-            action: 'VIEW_USERS',
-            resource: 'api/admin/users'
-        })
+        await requireAdmin()
 
         const users = await prisma.user.findMany({
             select: {
@@ -95,13 +88,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
                 createdAt: true,
                 updatedAt: true
             }
-        })
-
-        // Log user creation
-        await SessionTracker.logActivity({
-            userId: adminUser.id,
-            action: 'CREATE_USER',
-            resource: `api/admin/users/${newUser.id}`
         })
 
         // Return user data with the unhashed password for admin reference

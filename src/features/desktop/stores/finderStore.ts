@@ -92,6 +92,21 @@ export const createFinderStore = () => {
         selectedItems: new Set(),
         lastSelectedItem: null,
       });
+
+      // Track folder navigation for meaningful user actions
+      if (updateHistory) {
+        try {
+          await fetch('/api/activity/folder-navigation', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ path }),
+          });
+        } catch (error) {
+          console.error('Failed to track folder navigation:', error);
+        }
+      }
     } catch (error) {
       setState({
         error: error instanceof Error ? error.message : 'Failed to load directory',

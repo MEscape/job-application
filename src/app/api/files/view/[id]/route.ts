@@ -31,6 +31,13 @@ export const GET = withErrorHandler(async (
       throw ErrorResponses.VALIDATION_ERROR
     }
 
+    // Allow access if user is admin or if file is attached to this user or public
+    const hasAccess = file.userId === null || session.user.isAdmin || file.userId === session.user.id
+    
+    if (!hasAccess) {
+      throw ErrorResponses.FORBIDDEN
+    }
+
     let fileBuffer: Buffer
     let contentType = 'application/octet-stream'
 
@@ -53,7 +60,11 @@ export const GET = withErrorHandler(async (
 
     // Set proper content type based on file extension
     if (file.extension) {
-      switch (file.extension.toLowerCase()) {
+      const ext = file.extension.toLowerCase()
+      // Handle both with and without dot prefix
+      const normalizedExt = ext.startsWith('.') ? ext : `.${ext}`
+      
+      switch (normalizedExt) {
         case '.pdf':
           contentType = 'application/pdf'
           break
@@ -70,6 +81,15 @@ export const GET = withErrorHandler(async (
         case '.txt':
           contentType = 'text/plain'
           break
+        case '.webm':
+          contentType = 'video/webm'
+          break
+        case '.mov':
+          contentType = 'video/quicktime'
+          break
+        case '.avi':
+          contentType = 'video/x-msvideo'
+          break
         default:
           contentType = 'application/octet-stream'
       }
@@ -79,7 +99,9 @@ export const GET = withErrorHandler(async (
     return new NextResponse(fileBuffer as any, {
       headers: {
         'Content-Type': contentType,
-        'Content-Length': fileBuffer.length.toString()
+        'Content-Disposition': 'inline',
+        'Content-Length': fileBuffer.length.toString(),
+        'Cache-Control': 'public, max-age=31536000'
       }
     })
 })

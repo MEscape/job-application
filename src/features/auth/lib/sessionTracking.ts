@@ -107,4 +107,17 @@ export class SessionTracker {
       console.error('Error tracking search:', error);
     }
   }
+
+  // Track folder navigation
+  static async trackFolderNavigation(userId: string, path: string) {
+    try {
+      await this.logActivity({
+        userId,
+        action: 'NAVIGATE_FOLDER',
+        resource: `folder:${path}`
+      });
+    } catch (error) {
+      console.error('Error tracking folder navigation:', error);
+    }
+  }
 }

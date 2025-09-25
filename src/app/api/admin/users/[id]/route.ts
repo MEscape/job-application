@@ -81,13 +81,6 @@ export const PUT = withErrorHandler(async (request: NextRequest, { params }: Rou
             }
         })
 
-        // Log user update
-        await SessionTracker.logActivity({
-            userId: adminUser.id,
-            action: 'UPDATE_USER',
-            resource: `api/admin/users/${id}`
-        })
-
         return NextResponse.json(updatedUser)
 })
 
@@ -113,13 +106,6 @@ export const DELETE = withErrorHandler(async (_request: NextRequest, { params }:
 
         await prisma.user.delete({
             where: { id }
-        })
-
-        // Log user deletion
-        await SessionTracker.logActivity({
-            userId: adminUser.id,
-            action: 'DELETE_USER',
-            resource: `api/admin/users/${id}`
         })
 
         return NextResponse.json(

@@ -5,14 +5,7 @@ import { SessionTracker } from '@/features/auth/lib/sessionTracking'
 import { withErrorHandler } from '@/features/shared/lib/errorHandler'
 
 export const GET = withErrorHandler(async () => {
-    const user = await requireAdmin()
-        
-        // Log admin access
-        await SessionTracker.logActivity({
-            userId: user.id,
-            action: 'VIEW_ACTIVITY_STATS',
-            resource: 'api/admin/activity/stats'
-        })
+    await requireAdmin()
 
         // Get current date for calculations
         const now = new Date()

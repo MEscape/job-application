@@ -5,13 +5,7 @@ import { SessionTracker } from '@/features/auth/lib/sessionTracking'
 import { withErrorHandler } from '@/features/shared/lib/errorHandler'
 
 export const GET = withErrorHandler(async () => {
-    const user = await requireAdmin()
-        
-        await SessionTracker.logActivity({
-            userId: user.id,
-            action: 'VIEW_ONLINE_STATUS',
-            resource: 'api/admin/activity/online-status'
-        })
+    await requireAdmin()
 
         const now = new Date()
         const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
