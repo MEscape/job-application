@@ -37,19 +37,19 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://va.vercel-scripts.com https://cdnjs.cloudflare.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://va.vercel-scripts.com https://cdnjs.cloudflare.com https://vercel.live",
               "worker-src 'self' blob: data:",
               "child-src 'self' blob: data:",
               "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com",
               "img-src 'self' data: blob: https://*.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com https://cdnjs.cloudflare.com https://*.basemaps.cartocdn.com https://cdn.jsdelivr.net https://img.icons8.com",
               "font-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
-              "connect-src 'self' https://*.openstreetmap.org https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
+              "connect-src 'self' https://*.openstreetmap.org https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://vercel.com",
               "media-src 'self' blob: data:",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
               "frame-ancestors 'self'",
-              "frame-src 'self' blob:",
+              "frame-src 'self' blob: https://vercel.live",
               "upgrade-insecure-requests"
             ].join('; ')
           }

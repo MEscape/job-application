@@ -4,7 +4,7 @@ import { FileType } from "@prisma/client"
 import { prisma } from "@/features/shared/lib"
 import { unlink } from "fs/promises"
 import { join } from "path"
-import { del } from "@vercel/blob"
+import { deleteFileFromLFS } from '@/features/shared/lib/githubLFS';
 import { SessionTracker } from "@/features/auth/lib/sessionTracking"
 import { z } from "zod"
 import { withErrorHandler, ErrorResponses } from "@/features/shared/lib/errorHandler"
@@ -201,9 +201,9 @@ async function deleteFileRecursively(fileId: string): Promise<void> {
                 console.log(`Deleting local file: ${localPath}`)
                 await unlink(localPath)
             } else {
-                // Delete from Vercel Blob in production
-                console.log(`Deleting blob file: ${file.filePath}`)
-                await del(file.filePath)
+                // Delete from GitHub LFS in production
+                console.log(`Deleting LFS file: ${file.filePath}`)
+                await deleteFileFromLFS(file.filePath)
             }
             console.log(`Successfully deleted physical file: ${file.filePath}`)
         } catch (error) {

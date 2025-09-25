@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { put } from '@vercel/blob'
+import { uploadFileToLFS } from '@/features/shared/lib/githubLFS'
 import { prisma } from '@/features/shared/lib'
 import { z } from 'zod'
 import { FileType } from '@prisma/client'
@@ -79,7 +79,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     const extension = getExtensionFromMime(file.type, validatedRequest.fileName)
     const uniqueFileName = `${timestamp}-${validatedRequest.fileName}`
     
-    let actualBlobUrl: string | undefined
+    let fileUrl: string
     
     // Handle file storage based on environment
     if (process.env.NODE_ENV === 'development') {
@@ -94,26 +94,16 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       const arrayBuffer = await file.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
       await writeFile(filePath, buffer)
+      
+      fileUrl = `/uploads/${uniqueFileName}`
     } else {
-      // Upload to Vercel Blob in production
-      // Ensure we have a valid content type
-      const contentType = file.type || validatedRequest.mimeType || 'application/octet-stream'
+      // Upload to GitHub LFS in production
+      const arrayBuffer = await file.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
       
-      // Debug logging for content type
-      console.log('File upload debug:', {
-        fileName: validatedRequest.fileName,
-        fileType: file.type,
-        validatedMimeType: validatedRequest.mimeType,
-        finalContentType: contentType
-      })
-      
-      const blob = await put(uniqueFileName, file, {
-        access: 'public',
-        addRandomSuffix: false,
-        contentType: contentType
-      })
-      // Store the actual blob URL for internal use, return secure proxy URL
-      actualBlobUrl = blob.url
+      // Upload to GitHub LFS
+      const lfsFilename = await uploadFileToLFS(buffer, uniqueFileName)
+      fileUrl = `/uploads/${lfsFilename}`
     }
 
     // Normalize parent path
@@ -143,7 +133,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         path: fullFilePath,
         size: validatedRequest.fileSize,
         extension,
-        filePath: process.env.NODE_ENV === 'production' ? (actualBlobUrl) : `/uploads/${uniqueFileName}`, // Store actual blob URL in prod, local path in dev
+        filePath: fileUrl, // Store GitHub LFS path in prod, local path in dev
         isReal: true, // Mark as real file
         uploadedBy: user.id,
         userId: validatedRequest.userId || null, // Store user-specific assignment

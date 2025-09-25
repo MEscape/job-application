@@ -4,6 +4,7 @@ import { readFile } from 'fs/promises'
 import path from 'path'
 import { auth } from '@/features/auth/lib/auth'
 import { withErrorHandler, ErrorResponses } from '@/features/shared/lib/errorHandler'
+import { downloadFileFromLFS } from '@/features/shared/lib/githubLFS'
 
 export const GET = withErrorHandler(async (
   _request: NextRequest,
@@ -31,6 +32,13 @@ export const GET = withErrorHandler(async (
       throw ErrorResponses.VALIDATION_ERROR
     }
 
+    // Allow access if user is admin or if file is attached to this user or public
+    const hasAccess = file.userId === null || session.user.isAdmin || file.userId === session.user.id
+    
+    if (!hasAccess) {
+      throw ErrorResponses.FORBIDDEN
+    }
+
     let fileBuffer: Buffer
     let contentType = 'application/octet-stream'
 
@@ -43,12 +51,8 @@ export const GET = withErrorHandler(async (
       const filePath = path.join(process.cwd(), 'uploads', relativePath)
       fileBuffer = await readFile(filePath)
     } else {
-      // Read from Vercel Blob in production
-      const response = await fetch(file.filePath)
-      if (!response.ok) {
-        throw new Error('Failed to fetch file from blob storage')
-      }
-      fileBuffer = Buffer.from(await response.arrayBuffer())
+      // Read from GitHub LFS in production
+      fileBuffer = await downloadFileFromLFS(file.filePath)
     }
 
     // Set proper content type based on file extension
