@@ -7,16 +7,9 @@ import { withErrorHandler } from '@/features/shared/lib/errorHandler'
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
     // 1. Admin authentication check
-    const user = await requireAdmin()
-    
-    // 2. Log admin access
-    await SessionTracker.logActivity({
-        userId: user.id,
-        action: 'VIEW_ACTIVITY_LOGS',
-        resource: 'api/admin/activity/logs'
-    })
+    await requireAdmin()
 
-    // 3. Parse query parameters
+    // 2. Parse query parameters
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
