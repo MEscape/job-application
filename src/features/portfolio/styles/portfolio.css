@@ -438,6 +438,128 @@
   scroll-behavior: smooth;
 }
 
+/* Mobile Performance Optimizations */
+@media (max-width: 768px) {
+  /* Reduce animation complexity on mobile */
+  .animate-float {
+    animation-duration: 4s;
+    animation-timing-function: ease-in-out;
+  }
+  
+  /* Simplify hover effects for touch devices */
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+  
+  .hover-rotate:hover {
+    transform: rotate(2deg);
+  }
+  
+  .hover-slide:hover {
+    transform: translateX(5px);
+  }
+  
+  /* Disable complex animations on mobile */
+  .animate-particle-float {
+    animation: none;
+  }
+  
+  .animate-shimmer {
+    animation-duration: 3s; /* Slower shimmer on mobile */
+  }
+  
+  .animate-gradient-shift {
+    animation-duration: 4s; /* Slower gradient shift */
+  }
+  
+  /* Reduce glow effects on mobile */
+  .animate-pulse-glow {
+    animation: none;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  }
+  
+  .animate-text-glow {
+    animation: none;
+    text-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+  
+  /* Optimize scroll animations for mobile */
+  .scroll-reveal,
+  .scroll-reveal-left,
+  .scroll-reveal-right,
+  .scroll-reveal-scale {
+    transition-duration: 0.4s; /* Faster transitions on mobile */
+  }
+  
+  /* Reduce transform distances on mobile */
+  .scroll-reveal {
+    transform: translateY(20px);
+  }
+  
+  .scroll-reveal-left {
+    transform: translateX(-20px);
+  }
+  
+  .scroll-reveal-right {
+    transform: translateX(20px);
+  }
+  
+  /* Disable complex 3D transforms on mobile */
+  .animate-flip-in-x {
+    animation: fade-in-up 0.5s ease-out;
+  }
+  
+  /* Optimize parallax for mobile */
+  .parallax-slow,
+  .parallax-medium,
+  .parallax-fast {
+    transform: none;
+    will-change: auto;
+  }
+}
+
+/* Ultra-small screens (phones in portrait) */
+@media (max-width: 480px) {
+  /* Further reduce animations */
+  .animate-float,
+  .animate-bounce-in,
+  .animate-rotate-in {
+    animation-duration: 0.5s;
+    animation-iteration-count: 1;
+  }
+  
+  /* Disable hover effects on very small screens */
+  .hover-lift:hover,
+  .hover-scale:hover,
+  .hover-rotate:hover,
+  .hover-slide:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Simplify transitions */
+  .transition-all-smooth {
+    transition: opacity 0.2s ease;
+  }
+  
+  .transition-transform-smooth {
+    transition: transform 0.2s ease;
+  }
+  
+  .transition-opacity-smooth {
+    transition: opacity 0.2s ease;
+  }
+}
+
 /* Responsive Animations */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -447,19 +569,65 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  
+  /* Disable all complex animations for accessibility */
+  .animate-float,
+  .animate-pulse-glow,
+  .animate-gradient-shift,
+  .animate-shimmer,
+  .animate-particle-float,
+  .animate-text-glow {
+    animation: none !important;
+  }
+  
+  /* Keep only essential transitions */
+  .scroll-reveal,
+  .scroll-reveal-left,
+  .scroll-reveal-right,
+  .scroll-reveal-scale {
+    transition: opacity 0.2s ease !important;
+    transform: none !important;
+  }
 }
 
-@media (max-width: 768px) {
-  .animate-float {
-    animation-duration: 4s;
+/* High-performance mode for low-end devices */
+@media (max-width: 768px) and (max-resolution: 150dpi) {
+  /* Disable all non-essential animations */
+  .animate-float,
+  .animate-pulse-glow,
+  .animate-gradient-shift,
+  .animate-shimmer,
+  .animate-particle-float,
+  .animate-text-glow,
+  .animate-ripple {
+    animation: none;
   }
   
-  .hover-lift:hover {
-    transform: translateY(-2px);
+  /* Simplify all hover effects */
+  .hover-lift:hover,
+  .hover-glow:hover,
+  .hover-scale:hover,
+  .hover-rotate:hover,
+  .hover-slide:hover {
+    transform: none;
+    box-shadow: none;
   }
   
-  .hover-scale:hover {
-    transform: scale(1.02);
+  /* Use only opacity transitions */
+  .scroll-reveal,
+  .scroll-reveal-left,
+  .scroll-reveal-right,
+  .scroll-reveal-scale {
+    transition: opacity 0.3s ease;
+    transform: none;
+  }
+  
+  .scroll-reveal.revealed,
+  .scroll-reveal-left.revealed,
+  .scroll-reveal-right.revealed,
+  .scroll-reveal-scale.revealed {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -519,6 +687,26 @@
   transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Mobile-specific utility classes */
+@media (max-width: 768px) {
+  .mobile-no-animation {
+    animation: none !important;
+  }
+  
+  .mobile-simple-transition {
+    transition: opacity 0.2s ease !important;
+  }
+  
+  .mobile-no-transform {
+    transform: none !important;
+  }
+  
+  .mobile-no-hover:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
 /* bottom fade (except last section) */
 .transition:not(:last-child)::after {
   content: "";
@@ -553,4 +741,10 @@
   );
   pointer-events: none;
   z-index: 1;
+}
+
+/* Mobile fade adjustments */
+.transition:not(:last-child)::after,
+.transition:not(:first-child)::before {
+  height: 60px; /* Smaller fade areas on mobile */
 }

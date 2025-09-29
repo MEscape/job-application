@@ -1,5 +1,5 @@
 import {motion} from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import {GlassMorphism} from "@/features/portfolio/components/shared/GlassMorphism";
 import {Briefcase, Calendar, ChevronDown, GraduationCap, Award, Trophy} from "lucide-react";
 
@@ -53,8 +53,19 @@ export const TimelineCard = ({
     scrollProgress: number;
 }) => {
     const isLeft = side === 'left';
-    const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
     const [isHovered, setIsHovered] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Mobile detection with SSR safety
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 640);
+        };
+        
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const startDate = formatDate(entry.start_date);
     const endDate = entry.end_date ? formatDate(entry.end_date) : (entry.duration || 'Present');
@@ -65,46 +76,28 @@ export const TimelineCard = ({
     const shouldTruncate = hasDetails && detailsText.length > 150;
     const needsMoreButton = shouldTruncate;
 
-    // Enhanced scroll animations
+    // Enhanced scroll animations - simplified for mobile
     const entryProgress = Math.max(0, Math.min(1, (scrollProgress - index * 0.09) / 0.22));
     const opacity = entryProgress;
-    const translateX = isLeft ? (1 - entryProgress) * -60 : (1 - entryProgress) * 60;
-    const scale = 0.85 + entryProgress * 0.15;
+    const translateX = isLeft ? (1 - entryProgress) * -40 : (1 - entryProgress) * 40; // Reduced movement
+    const scale = 0.9 + entryProgress * 0.1; // Reduced scale change
 
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        setMousePosition({ x, y });
-    };
+    // Optimized mouse handlers
+    const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+    const handleMouseLeave = useCallback(() => setIsHovered(false), []);
 
-    const { x, y } = mousePosition;
-
-    // Enhanced shimmer system with purple-blue theme
-    const createShimmer = (position: number, direction: 'horizontal' | 'vertical', intensity: number) => {
+    // Simplified shimmer system - only for desktop
+    const createSimpleShimmer = useCallback((intensity: number) => {
         if (intensity === 0) return 'transparent';
-        const center = position * 100;
-        const spread = 25;
-        const glow = intensity * 0.8;
-
         const shimmerColor = type === 'education'
-            ? `rgba(139, 92, 246, ${glow})` // Purple for education
-            : `rgba(59, 130, 246, ${glow})`; // Blue for experience
+            ? `rgba(139, 92, 246, ${intensity * 0.3})` // Purple for education
+            : `rgba(59, 130, 246, ${intensity * 0.3})`; // Blue for experience
+        
+        return `linear-gradient(45deg, transparent 30%, ${shimmerColor} 50%, transparent 70%)`;
+    }, [type]);
 
-        return direction === 'horizontal'
-            ? `linear-gradient(to right, transparent ${Math.max(0, center - spread)}%, ${shimmerColor} ${center}%, transparent ${Math.min(100, center + spread)}%)`
-            : `linear-gradient(to bottom, transparent ${Math.max(0, center - spread)}%, ${shimmerColor} ${center}%, transparent ${Math.min(100, center + spread)}%)`;
-    };
-
-    const getIntensity = (distance: number) => Math.max(0, (0.3 - distance) / 0.3);
-
-    const topShimmer = createShimmer(x, 'horizontal', getIntensity(y));
-    const bottomShimmer = createShimmer(x, 'horizontal', getIntensity(1 - y));
-    const leftShimmer = createShimmer(y, 'vertical', getIntensity(x));
-    const rightShimmer = createShimmer(y, 'vertical', getIntensity(1 - x));
-
-    // Color schemes
-    const colorScheme = type === 'education' ? {
+    // Memoized color schemes
+    const colorScheme = useMemo(() => type === 'education' ? {
         gradient: 'from-violet-500/10 via-purple-500/8 to-indigo-500/10',
         border: 'border-violet-400/40',
         text: 'text-violet-300',
@@ -128,68 +121,63 @@ export const TimelineCard = ({
         gradeBorder: 'border-blue-400/50',
         gradeIcon: 'bg-blue-400/20',
         gradeText: 'text-blue-300'
-    };
+    }, [type]);
 
     return (
         <motion.div
-            className={`relative flex items-start mb-8 ${isLeft ? 'justify-start' : 'justify-end'}`}
+            className={`relative flex items-start mb-6 sm:mb-8 ${isLeft ? 'justify-start' : 'justify-end'} 
+                       sm:${isLeft ? 'justify-start' : 'justify-end'}`}
             style={{
                 opacity,
                 transform: `translateX(${translateX}px) scale(${scale})`,
             }}
         >
-            <div className={`w-80 ${isLeft ? 'mr-8' : 'ml-8'}`}>
+            {/* Responsive card width */}
+            <div className={`w-full max-w-sm sm:w-80 ${isLeft ? 'mr-0 sm:mr-8' : 'ml-0 sm:ml-8'}`}>
                 <motion.div
                     className="relative"
                     whileHover={{
-                        y: -8,
+                        y: isMobile ? -4 : -8, // Reduced movement on mobile
                         transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
                     }}
                 >
                     <GlassMorphism variant="medium" intensity="high" className="cursor-pointer group overflow-hidden">
                         <div
-                            className="relative p-6 transition-all duration-500"
-                            onMouseMove={handleMouseMove}
-                            onMouseEnter={() => setIsHovered(true)}
-                            onMouseLeave={() => setIsHovered(false)}
+                            className="relative p-4 sm:p-6 transition-all duration-500"
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
                             onClick={hasDetails ? onClick : undefined}
                         >
-                            {/* Atmospheric glow effect */}
+                            {/* Simplified atmospheric glow effect - desktop only */}
                             <div
-                                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                                className="hidden sm:block absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"
                                 style={{
-                                    background: `radial-gradient(600px circle at ${x * 100}% ${y * 100}%, ${colorScheme.glow}, transparent 40%)`,
+                                    background: `radial-gradient(400px circle at 50% 50%, ${colorScheme.glow}, transparent 40%)`,
                                 }}
                             />
 
-                            {/* Dynamic shimmer borders */}
+                            {/* Simplified shimmer borders - desktop only */}
                             <div
-                                className="absolute inset-0 rounded-xl pointer-events-none overflow-hidden"
+                                className="hidden sm:block absolute inset-0 rounded-xl pointer-events-none overflow-hidden opacity-0 hover:opacity-100 transition-opacity duration-300"
                                 style={{
-                                    opacity: isHovered ? 1 : 0,
-                                    transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+                                    background: isHovered ? createSimpleShimmer(0.5) : 'transparent'
                                 }}
-                            >
-                                <div className="absolute top-0 left-0 w-full h-px" style={{ background: topShimmer }} />
-                                <div className="absolute bottom-0 left-0 w-full h-px" style={{ background: bottomShimmer }} />
-                                <div className="absolute top-0 left-0 w-px h-full" style={{ background: leftShimmer }} />
-                                <div className="absolute top-0 right-0 w-px h-full" style={{ background: rightShimmer }} />
-                            </div>
+                            />
 
-                            {/* Header */}
-                            <div className="relative z-10 mb-5">
-                                <div className="flex items-start justify-between gap-4 mb-4">
+                            {/* Header - responsive layout */}
+                            <div className="relative z-10 mb-4 sm:mb-5">
+                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4 mb-4">
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-xl font-bold text-white mb-2 leading-tight tracking-tight">
+                                        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 leading-tight tracking-tight">
                                             {entry.degree || entry.position}
                                         </h3>
-                                        <p className="text-slate-300 font-medium text-base mb-3">
+                                        <p className="text-slate-300 font-medium text-sm sm:text-base mb-3">
                                             {entry.institution || entry.company}
                                         </p>
 
-                                        {/* Improved time duration layout */}
-                                        <div className="flex items-center gap-2 text-sm text-slate-400">
-                                            <Calendar className="w-4 h-4 shrink-0" />
+                                        {/* Improved time duration layout - responsive */}
+                                        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400">
+                                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                                             <div className="flex flex-wrap items-center gap-1">
                                                 <span className="font-medium whitespace-nowrap">{startDate}</span>
                                                 {startDate && <span className="text-slate-500">–</span>}
@@ -198,18 +186,18 @@ export const TimelineCard = ({
                                         </div>
                                     </div>
 
-                                    {/* Enhanced type badge */}
+                                    {/* Enhanced type badge - responsive */}
                                     <motion.div
-                                        className={`px-4 py-2.5 rounded-2xl backdrop-blur-md border shrink-0 bg-gradient-to-r ${colorScheme.gradient} ${colorScheme.border} ${colorScheme.hover} transition-all duration-300`}
-                                        whileHover={{ scale: 1.05 }}
+                                        className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl backdrop-blur-md border shrink-0 bg-gradient-to-r ${colorScheme.gradient} ${colorScheme.border} ${colorScheme.hover} transition-all duration-300 self-start`}
+                                        whileHover={{ scale: isMobile ? 1.02 : 1.05 }}
                                     >
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1.5 sm:gap-2">
                                             {type === 'education' ? (
-                                                <GraduationCap className={`w-4 h-4 ${colorScheme.icon}`} />
+                                                <GraduationCap className={`w-3 h-3 sm:w-4 sm:h-4 ${colorScheme.icon}`} />
                                             ) : (
-                                                <Briefcase className={`w-4 h-4 ${colorScheme.icon}`} />
+                                                <Briefcase className={`w-3 h-3 sm:w-4 sm:h-4 ${colorScheme.icon}`} />
                                             )}
-                                            <span className={`text-sm font-bold capitalize ${colorScheme.text}`}>
+                                            <span className={`text-xs sm:text-sm font-bold capitalize ${colorScheme.text}`}>
                                                 {type}
                                             </span>
                                         </div>
@@ -217,20 +205,20 @@ export const TimelineCard = ({
                                 </div>
                             </div>
 
-                            {/* Improved Grade showcase */}
+                            {/* Improved Grade showcase - responsive */}
                             {entry.grade && (
                                 <motion.div
-                                    className="mb-5"
+                                    className="mb-4 sm:mb-5"
                                     initial={{ scale: 0.9, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ delay: 0.1 }}
                                 >
-                                    <div className={`flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r ${colorScheme.gradeGradient} border ${colorScheme.gradeBorder} backdrop-blur-sm`}>
-                                        <div className={`p-2 rounded-full ${colorScheme.gradeIcon}`}>
+                                    <div className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-r ${colorScheme.gradeGradient} border ${colorScheme.gradeBorder} backdrop-blur-sm`}>
+                                        <div className={`p-1.5 sm:p-2 rounded-full ${colorScheme.gradeIcon}`}>
                                             {type === 'education' ? (
-                                                <Trophy className={`w-4 h-4 ${colorScheme.icon}`} />
+                                                <Trophy className={`w-3 h-3 sm:w-4 sm:h-4 ${colorScheme.icon}`} />
                                             ) : (
-                                                <Award className={`w-4 h-4 ${colorScheme.icon}`} />
+                                                <Award className={`w-3 h-3 sm:w-4 sm:h-4 ${colorScheme.icon}`} />
                                             )}
                                         </div>
                                         <div className="flex-1">
@@ -239,7 +227,7 @@ export const TimelineCard = ({
                                                     {type === 'education' ? 'Academic Grade' : 'Performance Rating'}
                                                 </span>
                                             </div>
-                                            <span className={`${colorScheme.gradeText} font-bold text-lg`}>
+                                            <span className={`${colorScheme.gradeText} font-bold text-base sm:text-lg`}>
                                                 {entry.grade}
                                             </span>
                                         </div>
@@ -247,37 +235,37 @@ export const TimelineCard = ({
                                 </motion.div>
                             )}
 
-                            {/* Description - only show if has details */}
+                            {/* Description - responsive text and only show if has details */}
                             {hasDetails && (
-                                <div className="relative z-10 mb-5">
+                                <div className="relative z-10 mb-4 sm:mb-5">
                                     <p className="text-slate-300 leading-relaxed text-sm">
                                         {shouldTruncate && !isActive
-                                            ? `${detailsText.substring(0, 120)}...`
+                                            ? `${detailsText.substring(0, 100)}...`
                                             : detailsText
                                         }
                                     </p>
                                 </div>
                             )}
 
-                            {/* Expand button - only show if has details */}
+                            {/* Expand button - responsive and only show if has details */}
                             {needsMoreButton && (
                                 <div className="flex justify-center relative z-10">
                                     <motion.button
-                                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full backdrop-blur-md border transition-all duration-400 bg-gradient-to-r ${colorScheme.gradient} ${colorScheme.border} ${colorScheme.hover}`}
+                                        className={`flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full backdrop-blur-md border transition-all duration-400 bg-gradient-to-r ${colorScheme.gradient} ${colorScheme.border} ${colorScheme.hover} touch-manipulation`}
                                         whileHover={{
-                                            scale: 1.05,
-                                            boxShadow: `0 10px 40px ${colorScheme.glow}`,
+                                            scale: isMobile ? 1.02 : 1.05,
+                                            boxShadow: isMobile ? 'none' : `0 10px 40px ${colorScheme.glow}`,
                                         }}
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         <span className={`text-xs font-semibold ${colorScheme.text} transition-colors`}>
-                                            {isActive ? 'Show Less' : 'Show More'}
+                                            {isActive ? 'Weniger anzeigen' : 'Mehr anzeigen'}
                                         </span>
                                         <motion.div
                                             animate={{ rotate: isActive ? 180 : 0 }}
                                             transition={{ duration: 0.4, ease: "easeOut" }}
                                         >
-                                            <ChevronDown size={14} className={`${colorScheme.icon} transition-colors`} />
+                                            <ChevronDown size={12} className={`${colorScheme.icon} transition-colors`} />
                                         </motion.div>
                                     </motion.button>
                                 </div>
