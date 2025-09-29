@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CVTimeline } from './CVTimeline';
 import SkillsSection from './SkillsSection';
@@ -55,6 +55,18 @@ interface CVSkillsSectionProps {
 
 export function CVSkillsSection({ cvData, skillsData, className = '' }: CVSkillsSectionProps) {
   const [activeView, setActiveView] = useState<'journey' | 'skills'>('journey');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleViewChange = (view: 'journey' | 'skills') => {
     if (view !== activeView) {
@@ -63,44 +75,44 @@ export function CVSkillsSection({ cvData, skillsData, className = '' }: CVSkills
   };
 
   return (
-      <section className={`relative overflow-hidden ${className}`}>
-        <NavigationHeader handleViewChange={handleViewChange} activeView={activeView} />
+    <section className={`relative overflow-hidden ${className}`}>
+      <NavigationHeader handleViewChange={handleViewChange} activeView={activeView} />
 
-        <div className="container mx-auto px-6">
-          <div className="relative min-h-[600px] pb-16">
-            <AnimatePresence mode="wait">
-              {activeView === 'journey' ? (
-                  <motion.div
-                      key="journey"
-                      initial={{ opacity: 0, x: -30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 30 }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      className="py-8"
-                  >
-                    <CVTimeline
-                        education={cvData.education}
-                        experience={cvData.experience}
-                    />
-                  </motion.div>
-              ) : (
-                  <motion.div
-                      key="skills"
-                      initial={{ opacity: 0, x: 30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -30 }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      className="py-8"
-                  >
-                    <SkillsSection
-                        skills={skillsData.skills}
-                        languages={skillsData.languages}
-                    />
-                  </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="relative min-h-[400px] sm:min-h-[600px] pb-8 sm:pb-16">
+          <AnimatePresence mode="wait">
+            {activeView === 'journey' ? (
+                <motion.div
+                    key="journey"
+                    initial={{ opacity: 0, x: isMobile ? -15 : -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: isMobile ? 15 : 30 }}
+                    transition={{ duration: isMobile ? 0.4 : 0.6, ease: "easeOut" }}
+                    className="py-4 sm:py-8"
+                >
+                  <CVTimeline
+                      education={cvData.education}
+                      experience={cvData.experience}
+                  />
+                </motion.div>
+            ) : (
+                <motion.div
+                    key="skills"
+                    initial={{ opacity: 0, x: isMobile ? 15 : 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: isMobile ? -15 : -30 }}
+                    transition={{ duration: isMobile ? 0.4 : 0.6, ease: "easeOut" }}
+                    className="py-4 sm:py-8"
+                >
+                  <SkillsSection
+                      skills={skillsData.skills}
+                      languages={skillsData.languages}
+                  />
+                </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </section>
+      </div>
+    </section>
   );
 }

@@ -18,6 +18,7 @@ export function TechCarousel({ technologies, className = '' }: TechCarouselProps
     const [isPaused, setIsPaused] = useState(false);
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
     const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+    const [isMobile, setIsMobile] = useState(false);
     const carouselRef = useRef<HTMLDivElement>(null);
 
     // Sample technologies if none provided
@@ -36,6 +37,14 @@ export function TechCarousel({ technologies, className = '' }: TechCarouselProps
 
     const techs = technologies.length > 0 ? technologies : sampleTechs;
 
+    // Check for mobile device
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // Handle image load errors
     const handleImageError = (techName: string) => {
         setImageErrors(prev => new Set([...prev, techName]));
@@ -46,13 +55,13 @@ export function TechCarousel({ technologies, className = '' }: TechCarouselProps
         return name.charAt(0).toUpperCase();
     };
 
-    // Auto-scroll animation
+    // Auto-scroll animation - simplified for mobile
     useEffect(() => {
         if (!carouselRef.current || techs.length === 0) return;
 
         const carousel = carouselRef.current;
         let animationId: number;
-        const speed = 25;
+        const speed = isMobile ? 15 : 25; // Slower on mobile
         let lastTime = Date.now();
         let currentScroll = carousel.scrollLeft;
 
@@ -79,7 +88,7 @@ export function TechCarousel({ technologies, className = '' }: TechCarouselProps
 
         animationId = requestAnimationFrame(animate);
         return () => cancelAnimationFrame(animationId);
-    }, [techs.length, isPaused]);
+    }, [techs.length, isPaused, isMobile]);
 
     return (
         <div className={`relative w-full ${className}`}>
@@ -87,83 +96,87 @@ export function TechCarousel({ technologies, className = '' }: TechCarouselProps
                 className="relative"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: isMobile ? 0.4 : 0.8 }}
                 viewport={{ once: true }}
             >
                 {/* Flowing tech elements */}
                 <div className="relative">
                     <div
                         ref={carouselRef}
-                        className="flex overflow-hidden gap-16 py-8"
+                        className="flex overflow-hidden gap-8 md:gap-16 py-4 md:py-8"
                         style={{
                             scrollbarWidth: 'none',
                             msOverflowStyle: 'none',
                         }}
-                        onMouseEnter={() => setIsPaused(true)}
+                        onMouseEnter={() => !isMobile && setIsPaused(true)}
                         onMouseLeave={() => {
-                            setIsPaused(false);
-                            setHoveredIndex(null);
+                            if (!isMobile) {
+                                setIsPaused(false);
+                                setHoveredIndex(null);
+                            }
                         }}
                     >
                         {[...techs, ...techs, ...techs].map((tech, index) => (
                             <motion.div
                                 key={`${tech.name}-${index}`}
                                 className="flex-shrink-0 group relative flex flex-col items-center cursor-pointer"
-                                onMouseEnter={() => setHoveredIndex(index)}
-                                onMouseLeave={() => setHoveredIndex(null)}
-                                whileHover={{
+                                onMouseEnter={() => !isMobile && setHoveredIndex(index)}
+                                onMouseLeave={() => !isMobile && setHoveredIndex(null)}
+                                whileHover={!isMobile ? {
                                     scale: 1.1,
                                     y: -8,
-                                }}
+                                } : undefined}
                                 transition={{
-                                    duration: 0.3,
+                                    duration: isMobile ? 0.2 : 0.3,
                                     ease: [0.25, 0.46, 0.45, 0.94]
                                 }}
                             >
                                 {/* Tech icon/letter - completely free */}
                                 <div className="relative">
-                                    {/* Subtle glow on hover */}
-                                    <motion.div
-                                        className="absolute inset-0 blur-xl"
-                                        style={{
-                                            background: hoveredIndex === index ?
-                                                'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)' :
-                                                'transparent'
-                                        }}
-                                        animate={{
-                                            opacity: hoveredIndex === index ? 1 : 0,
-                                        }}
-                                        transition={{ duration: 0.3 }}
-                                    />
+                                    {/* Subtle glow on hover - only on desktop */}
+                                    {!isMobile && (
+                                        <motion.div
+                                            className="absolute inset-0 blur-xl"
+                                            style={{
+                                                background: hoveredIndex === index ?
+                                                    'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)' :
+                                                    'transparent'
+                                            }}
+                                            animate={{
+                                                opacity: hoveredIndex === index ? 1 : 0,
+                                            }}
+                                            transition={{ duration: 0.3 }}
+                                        />
+                                    )}
 
                                     {tech.logo && !imageErrors.has(tech.name) ? (
                                         <motion.img
                                             src={tech.logo}
                                             alt={tech.name}
-                                            className="w-12 h-12 object-contain relative z-10"
+                                            className="w-8 h-8 md:w-12 md:h-12 object-contain relative z-10"
                                             style={{
                                                 filter: 'brightness(0) invert(1) opacity(0.7)',
                                             }}
-                                            animate={{
+                                            animate={!isMobile ? {
                                                 opacity: hoveredIndex === index ? 1 : 0.7,
                                                 filter: hoveredIndex === index ?
                                                     'brightness(0) invert(1) opacity(1) drop-shadow(0 0 20px rgba(255,255,255,0.5))' :
                                                     'brightness(0) invert(1) opacity(0.7)'
-                                            }}
+                                            } : undefined}
                                             transition={{ duration: 0.3 }}
                                             onError={() => handleImageError(tech.name)}
                                         />
                                     ) : (
                                         <motion.div
-                                            className="w-12 h-12 flex items-center justify-center relative z-10"
-                                            animate={{
+                                            className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center relative z-10"
+                                            animate={!isMobile ? {
                                                 textShadow: hoveredIndex === index ?
                                                     '0 0 20px rgba(255,255,255,0.8)' :
                                                     'none'
-                                            }}
+                                            } : undefined}
                                             transition={{ duration: 0.3 }}
                                         >
-                                            <span className="text-white/70 font-light text-2xl">
+                                            <span className="text-white/70 font-light text-lg md:text-2xl">
                                                 {getTechInitial(tech.name)}
                                             </span>
                                         </motion.div>
@@ -172,14 +185,14 @@ export function TechCarousel({ technologies, className = '' }: TechCarouselProps
 
                                 {/* Always visible label */}
                                 <motion.div
-                                    className="mt-3 whitespace-nowrap"
-                                    animate={{
+                                    className="mt-2 md:mt-3 whitespace-nowrap"
+                                    animate={!isMobile ? {
                                         opacity: hoveredIndex === index ? 1 : 0.6,
                                         y: hoveredIndex === index ? -2 : 0,
-                                    }}
+                                    } : undefined}
                                     transition={{ duration: 0.3 }}
                                 >
-                                    <span className="text-white/70 text-sm font-light tracking-wide">
+                                    <span className="text-white/70 text-xs md:text-sm font-light tracking-wide">
                                         {tech.name}
                                     </span>
                                 </motion.div>
@@ -188,24 +201,26 @@ export function TechCarousel({ technologies, className = '' }: TechCarouselProps
                     </div>
 
                     {/* Gradient masks for smooth appearing/disappearing */}
-                    <div className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-black via-black/80 to-transparent z-10 pointer-events-none" />
-                    <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-black via-black/80 to-transparent z-10 pointer-events-none" />
+                    <div className="absolute left-0 top-0 w-12 md:w-20 h-full bg-gradient-to-r from-black via-black/80 to-transparent z-10 pointer-events-none" />
+                    <div className="absolute right-0 top-0 w-12 md:w-20 h-full bg-gradient-to-l from-black via-black/80 to-transparent z-10 pointer-events-none" />
                 </div>
 
-                {/* Minimal pause indicator */}
-                <AnimatePresence>
-                    {isPaused && (
-                        <motion.div
-                            className="absolute bottom-4 right-8"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <div className="w-1.5 h-1.5 bg-white/30 rounded-full" />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                {/* Minimal pause indicator - only on desktop */}
+                {!isMobile && (
+                    <AnimatePresence>
+                        {isPaused && (
+                            <motion.div
+                                className="absolute bottom-4 right-8"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <div className="w-1.5 h-1.5 bg-white/30 rounded-full" />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                )}
             </motion.div>
         </div>
     );
